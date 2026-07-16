@@ -1,3 +1,10 @@
+shamefullyHoist: true
+
 allowBuilds:
+  '@scarf/scarf': false
   lefthook: true
   unrs-resolver: true
+
+overrides:
+  glob: ^13.0.6
+  test-exclude: ^8.0.0
