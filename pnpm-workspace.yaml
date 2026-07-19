@@ -6,6 +6,7 @@ shamefullyHoist: true
 
 allowBuilds:
   '@scarf/scarf': false
+  grpc-tools: true
   lefthook: true
   protobufjs: true
   unrs-resolver: true

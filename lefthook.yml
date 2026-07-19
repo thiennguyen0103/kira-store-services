@@ -2,7 +2,7 @@ pre-commit:
   parallel: true
   jobs:
     - name: oxlint
-      glob: '*.{ts,tsx}'
+      glob: '*.{ts,tsx,mts,cts}'
       run: pnpm exec oxlint --fix --type-aware {staged_files}
       stage_fixed: true
 

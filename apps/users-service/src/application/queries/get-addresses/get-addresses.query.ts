@@ -1,3 +1,3 @@
-export class GetUserQuery {
+export class GetAddressesQuery {
   constructor(public readonly userId: string) {}
 }

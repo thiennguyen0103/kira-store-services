@@ -3,12 +3,94 @@ syntax = "proto3";
 package users;
 
 service UsersService {
-  rpc Ping (PingRequest) returns (PingResponse);
+  rpc GetUser(GetUserRequest)
+      returns (UserDetailResponse);
+
+  rpc GetAddresses(GetAddressesRequest)
+      returns (GetAddressesResponse);
+    
+  rpc GetDefaultAddress(GetDefaultAddressRequest)
+      returns (GetDefaultAddressResponse);
+
+  rpc GetUserByIdentityId(GetUserByIdentityIdRequest)
+      returns (GetUserByIdentityIdResponse);
+
+  rpc SearchUsers(SearchUsersRequest)
+      returns (SearchUsersResponse);
 }
 
-message PingRequest {}
+message GetUserRequest {
+  string userId = 1;
+}
 
-message PingResponse {
-  bool ok = 1;
-  string service = 2;
+message GetAddressesRequest {
+  string userId = 1;
+}
+
+message GetDefaultAddressRequest {
+  string userId = 1;
+}
+
+message GetUserByIdentityIdRequest {
+  string identityId = 1;
+}
+
+message SearchUsersRequest {
+  string query = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message AddressResponse {
+  string id = 1;
+  string receiverName = 2;
+  string phoneNumber = 3;
+  string provinceCode = 4;
+  string districtCode = 5;
+  string wardCode = 6;
+  string addressLine = 7;
+  string postalCode = 8;
+  string label = 9;
+  bool isDefault = 10;
+}
+
+message UserDetailResponse {
+  string id = 1;
+  string identityId = 2;
+  string fullName = 3;
+  string avatarUrl = 4;
+  string phoneNumber = 5;
+  string gender = 6;
+  string birthday = 7;
+  repeated AddressResponse addresses = 8;
+  string createdAt = 9;
+  string updatedAt = 10;
+}
+
+message GetAddressesResponse {
+  repeated AddressResponse addresses = 1;
+}
+
+message GetDefaultAddressResponse {
+  AddressResponse address = 1;
+}
+
+message GetUserByIdentityIdResponse {
+  UserDetailResponse user = 1;
+}
+
+message UserListItemResponse {
+  string id = 1;
+  string fullName = 2;
+  string email = 3;
+  string phoneNumber = 4;
+  string avatarUrl = 5;
+  string createdAt = 6;
+}
+
+message SearchUsersResponse {
+  repeated UserListItemResponse users = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
 }
