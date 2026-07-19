@@ -17,5 +17,48 @@ services:
       timeout: 5s
       retries: 5
 
+  loki:
+    image: grafana/loki:3.5.1
+    container_name: kira-loki
+    restart: unless-stopped
+    command: -config.file=/etc/loki/config.yml
+    ports:
+      - '127.0.0.1:3100:3100'
+    volumes:
+      - ./infra/loki/loki-config.yml:/etc/loki/config.yml:ro
+      - loki_data:/loki
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    image: grafana/grafana:12.0.2
+    container_name: kira-grafana
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:3200:3000'
+    environment:
+      # Local-only access (bound to 127.0.0.1). Anonymous Viewer — no credentials.
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: 'true'
+      GF_AUTH_BASIC_ENABLED: 'false'
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: 'true'
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      loki:
+        condition: service_healthy
+
 volumes:
   postgres_data:
+  loki_data:
+  grafana_data:

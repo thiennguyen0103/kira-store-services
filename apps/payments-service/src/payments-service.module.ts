@@ -5,6 +5,7 @@ import {
   createTypeOrmRootModule,
   paymentsServiceEnvSchema,
 } from 'libs/shared/config';
+import { createLoggerModule } from 'libs/shared/logging';
 import { PaymentsGrpcController } from './presentation/payments.grpc.controller';
 
 @Module({
@@ -12,6 +13,7 @@ import { PaymentsGrpcController } from './presentation/payments.grpc.controller'
     ConfigModule.forRoot(
       appConfigOptions('payments-service', paymentsServiceEnvSchema),
     ),
+    createLoggerModule('payments-service'),
     createTypeOrmRootModule(),
   ],
   controllers: [PaymentsGrpcController],

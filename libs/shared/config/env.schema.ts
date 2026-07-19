@@ -11,6 +11,12 @@ const baseEnvSchema = {
   NODE_ENV: Joi.string()
     .valid('development', 'production', 'test')
     .default('development'),
+  LOG_LEVEL: Joi.string()
+    .valid('fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent')
+    .default('info'),
+  LOKI_URL: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .optional(),
   RABBITMQ_URL: Joi.string()
     .uri({ scheme: ['amqp', 'amqps'] })
     .required(),

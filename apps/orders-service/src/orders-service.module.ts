@@ -5,6 +5,7 @@ import {
   createTypeOrmRootModule,
   ordersServiceEnvSchema,
 } from 'libs/shared/config';
+import { createLoggerModule } from 'libs/shared/logging';
 import { OrdersGrpcController } from './presentation/orders.grpc.controller';
 
 @Module({
@@ -12,6 +13,7 @@ import { OrdersGrpcController } from './presentation/orders.grpc.controller';
     ConfigModule.forRoot(
       appConfigOptions('orders-service', ordersServiceEnvSchema),
     ),
+    createLoggerModule('orders-service'),
     createTypeOrmRootModule(),
   ],
   controllers: [OrdersGrpcController],

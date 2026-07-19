@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ClientsModule } from '@nestjs/microservices';
 import { apiGatewayEnvSchema, appConfigOptions } from 'libs/shared/config';
 import { getGrpcUrls, SERVICE_TOKENS } from 'libs/shared/constants';
+import { createLoggerModule } from 'libs/shared/logging';
 import { createGrpcOptions } from 'libs/shared/microservices';
 import { OrdersClientPort } from './application/ports/orders-client.port';
 import { PaymentsClientPort } from './application/ports/payments-client.port';
@@ -16,6 +17,7 @@ import { UsersClient } from './infrastructure/client/users.client';
 @Module({
   imports: [
     ConfigModule.forRoot(appConfigOptions('api-gateway', apiGatewayEnvSchema)),
+    createLoggerModule('api-gateway'),
     ClientsModule.registerAsync([
       {
         name: SERVICE_TOKENS.USERS_SERVICE,

@@ -5,6 +5,7 @@ import {
   createTypeOrmRootModule,
   productsServiceEnvSchema,
 } from 'libs/shared/config';
+import { createLoggerModule } from 'libs/shared/logging';
 import { ProductsGrpcController } from './presentation/products.grpc.controller';
 
 @Module({
@@ -12,6 +13,7 @@ import { ProductsGrpcController } from './presentation/products.grpc.controller'
     ConfigModule.forRoot(
       appConfigOptions('products-service', productsServiceEnvSchema),
     ),
+    createLoggerModule('products-service'),
     createTypeOrmRootModule(),
   ],
   controllers: [ProductsGrpcController],

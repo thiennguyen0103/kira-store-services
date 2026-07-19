@@ -5,6 +5,7 @@ import {
   createTypeOrmRootModule,
   usersServiceEnvSchema,
 } from 'libs/shared/config';
+import { createLoggerModule } from 'libs/shared/logging';
 import { UsersGrpcController } from './presentation/users.grpc.controller';
 
 @Module({
@@ -12,6 +13,7 @@ import { UsersGrpcController } from './presentation/users.grpc.controller';
     ConfigModule.forRoot(
       appConfigOptions('users-service', usersServiceEnvSchema),
     ),
+    createLoggerModule('users-service'),
     createTypeOrmRootModule(),
   ],
   controllers: [UsersGrpcController],

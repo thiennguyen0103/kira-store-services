@@ -1,11 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { getGrpcUrls } from 'libs/shared/constants';
+import { setupLogger } from 'libs/shared/logging';
 import { createGrpcOptions } from 'libs/shared/microservices';
 import { setupSwagger } from 'libs/shared/swagger';
 import { OrdersServiceModule } from './orders-service.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(OrdersServiceModule);
+  const app = await NestFactory.create(OrdersServiceModule, {
+    bufferLogs: true,
+  });
+  setupLogger(app);
   app.connectMicroservice(createGrpcOptions('orders', getGrpcUrls().ORDERS));
   await app.startAllMicroservices();
   setupSwagger(app, { title: 'Orders Service' });
