@@ -1,8 +1,14 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { appConfigOptions, ordersServiceEnvSchema } from 'libs/shared/config';
 import { OrdersGrpcController } from './presentation/orders.grpc.controller';
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.forRoot(
+      appConfigOptions('orders-service', ordersServiceEnvSchema),
+    ),
+  ],
   controllers: [OrdersGrpcController],
   providers: [],
 })

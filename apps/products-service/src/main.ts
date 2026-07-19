@@ -11,6 +11,6 @@ async function bootstrap() {
   );
   await app.startAllMicroservices();
   setupSwagger(app, { title: 'Products Service' });
-  await app.listen(process.env.port ?? 3004);
+  await app.listen(process.env.PORT ?? 3004);
 }
 void bootstrap();

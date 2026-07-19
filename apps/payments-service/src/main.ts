@@ -11,6 +11,6 @@ async function bootstrap() {
   );
   await app.startAllMicroservices();
   setupSwagger(app, { title: 'Payments Service' });
-  await app.listen(process.env.port ?? 3003);
+  await app.listen(process.env.PORT ?? 3003);
 }
 void bootstrap();

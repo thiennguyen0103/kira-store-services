@@ -9,6 +9,6 @@ async function bootstrap() {
   app.connectMicroservice(createGrpcOptions('users', getGrpcUrls().USERS));
   await app.startAllMicroservices();
   setupSwagger(app, { title: 'Users Service' });
-  await app.listen(process.env.port ?? 3001);
+  await app.listen(process.env.PORT ?? 3001);
 }
 void bootstrap();
