@@ -16,6 +16,14 @@ const baseEnvSchema = {
     .required(),
 };
 
+const postgresEnvSchema = {
+  DB_HOST: Joi.string().hostname().default('localhost'),
+  DB_PORT: Joi.number().port().default(5432),
+  DB_USERNAME: Joi.string().required(),
+  DB_PASSWORD: Joi.string().allow('').required(),
+  DB_NAME: Joi.string().required(),
+};
+
 export const apiGatewayEnvSchema = Joi.object({
   ...baseEnvSchema,
   PORT: Joi.number().port().default(3000),
@@ -27,24 +35,28 @@ export const apiGatewayEnvSchema = Joi.object({
 
 export const usersServiceEnvSchema = Joi.object({
   ...baseEnvSchema,
+  ...postgresEnvSchema,
   PORT: Joi.number().port().default(3001),
   USERS_GRPC_URL: grpcHostPort.required(),
 });
 
 export const ordersServiceEnvSchema = Joi.object({
   ...baseEnvSchema,
+  ...postgresEnvSchema,
   PORT: Joi.number().port().default(3002),
   ORDERS_GRPC_URL: grpcHostPort.required(),
 });
 
 export const paymentsServiceEnvSchema = Joi.object({
   ...baseEnvSchema,
+  ...postgresEnvSchema,
   PORT: Joi.number().port().default(3003),
   PAYMENTS_GRPC_URL: grpcHostPort.required(),
 });
 
 export const productsServiceEnvSchema = Joi.object({
   ...baseEnvSchema,
+  ...postgresEnvSchema,
   PORT: Joi.number().port().default(3004),
   PRODUCTS_GRPC_URL: grpcHostPort.required(),
 });
