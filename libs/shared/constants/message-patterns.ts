@@ -11,4 +11,7 @@ export const MESSAGE_PATTERNS = {
   PRODUCTS: {
     // TODO: add products RPC patterns (e.g. CREATE, GET_BY_ID, RESERVE_STOCK)
   },
+  IDENTITY: {
+    // TODO: add identity RPC patterns (e.g. LOGIN, REGISTER, VALIDATE_TOKEN)
+  },
 } as const;

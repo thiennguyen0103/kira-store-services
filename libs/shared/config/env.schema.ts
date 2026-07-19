@@ -37,6 +37,7 @@ export const apiGatewayEnvSchema = Joi.object({
   ORDERS_GRPC_URL: grpcHostPort.required(),
   PAYMENTS_GRPC_URL: grpcHostPort.required(),
   PRODUCTS_GRPC_URL: grpcHostPort.required(),
+  IDENTITY_GRPC_URL: grpcHostPort.required(),
 });
 
 export const usersServiceEnvSchema = Joi.object({
@@ -65,4 +66,11 @@ export const productsServiceEnvSchema = Joi.object({
   ...postgresEnvSchema,
   PORT: Joi.number().port().default(3004),
   PRODUCTS_GRPC_URL: grpcHostPort.required(),
+});
+
+export const identityServiceEnvSchema = Joi.object({
+  ...baseEnvSchema,
+  ...postgresEnvSchema,
+  PORT: Joi.number().port().default(3005),
+  IDENTITY_GRPC_URL: grpcHostPort.required(),
 });

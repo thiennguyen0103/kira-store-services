@@ -22,3 +22,7 @@ export interface PaymentsGrpcService {
 export interface ProductsGrpcService {
   ping(data: PingRequest): Observable<PingResponse>;
 }
+
+export interface IdentityGrpcService {
+  ping(data: PingRequest): Observable<PingResponse>;
+}

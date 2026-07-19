@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package identity;
+
+service IdentityService {
+  rpc Ping (PingRequest) returns (PingResponse);
+}
+
+message PingRequest {}
+
+message PingResponse {
+  bool ok = 1;
+  string service = 2;
+}
