@@ -4,7 +4,7 @@
   "sourceRoot": "apps/kira-store-services/src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": true,
+    "webpack": false,
     "tsConfigPath": "apps/kira-store-services/tsconfig.app.json"
   },
   "monorepo": true,
@@ -44,15 +44,6 @@
       "sourceRoot": "apps/products-service/src",
       "compilerOptions": {
         "tsConfigPath": "apps/products-service/tsconfig.app.json"
-      }
-    },
-    "shared": {
-      "type": "library",
-      "root": "libs/shared",
-      "entryFile": "index",
-      "sourceRoot": "libs/shared/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/shared/tsconfig.lib.json"
       }
     },
     "users-service": {
