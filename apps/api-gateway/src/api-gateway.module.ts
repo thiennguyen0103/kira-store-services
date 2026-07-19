@@ -15,6 +15,7 @@ import { OrdersClient } from './infrastructure/client/orders.client';
 import { PaymentsClient } from './infrastructure/client/payments.client';
 import { ProductsClient } from './infrastructure/client/products.client';
 import { UsersClient } from './infrastructure/client/users.client';
+import { UsersController } from './presentation/users.controller';
 
 @Module({
   imports: [
@@ -43,7 +44,7 @@ import { UsersClient } from './infrastructure/client/users.client';
       },
     ]),
   ],
-  controllers: [],
+  controllers: [UsersController],
   providers: [
     { provide: UsersClientPort, useClass: UsersClient },
     { provide: OrdersClientPort, useClass: OrdersClient },

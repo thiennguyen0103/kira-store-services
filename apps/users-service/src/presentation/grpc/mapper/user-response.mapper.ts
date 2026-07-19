@@ -1,8 +1,10 @@
 import { AddressDto } from 'apps/users-service/src/application/dto/address.dto';
 import { UserDetailDto } from 'apps/users-service/src/application/dto/user-detail.dto';
+import { UserListItemDto } from 'apps/users-service/src/application/dto/user-list-item.dto';
 import {
   AddressResponse,
   UserDetailResponse,
+  UserListItemResponse,
 } from 'libs/shared/generated/users';
 
 export class UserResponseMapper {
@@ -20,6 +22,17 @@ export class UserResponseMapper {
       ),
       createdAt: dto.createdAt.toISOString(),
       updatedAt: dto.updatedAt.toISOString(),
+    };
+  }
+
+  static toListItem(dto: UserListItemDto): UserListItemResponse {
+    return {
+      id: dto.id,
+      fullName: dto.fullName,
+      email: dto.email,
+      phoneNumber: dto.phoneNumber ?? '',
+      avatarUrl: dto.avatarUrl ?? '',
+      createdAt: dto.createdAt.toISOString(),
     };
   }
 
