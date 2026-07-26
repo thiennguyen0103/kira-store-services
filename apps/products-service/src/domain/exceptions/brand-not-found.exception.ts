@@ -1,7 +1,7 @@
 import { NotFoundException } from 'libs/shared/exceptions/not-found.exception';
 
-export class ProductNotFoundException extends NotFoundException {
+export class BrandNotFoundException extends NotFoundException {
   constructor(identifier?: string) {
-    super('Product', identifier);
+    super('Brand', identifier);
   }
 }
