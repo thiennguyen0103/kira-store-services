@@ -30,6 +30,13 @@ const postgresEnvSchema = {
   DB_NAME: Joi.string().required(),
 };
 
+/** Spread into any service schema that imports `MailModule`. */
+export const emailEnvSchema = {
+  /** When set, mail is sent via Resend; otherwise logged to the console. */
+  RESEND_API_KEY: Joi.string().allow('').optional(),
+  EMAIL_FROM: Joi.string().default('Kira Store <onboarding@resend.dev>'),
+};
+
 export const apiGatewayEnvSchema = Joi.object({
   ...baseEnvSchema,
   PORT: Joi.number().port().default(3000),
@@ -71,6 +78,14 @@ export const productsServiceEnvSchema = Joi.object({
 export const identityServiceEnvSchema = Joi.object({
   ...baseEnvSchema,
   ...postgresEnvSchema,
+  ...emailEnvSchema,
   PORT: Joi.number().port().default(3005),
   IDENTITY_GRPC_URL: grpcHostPort.required(),
+  JWT_ACCESS_SECRET: Joi.string().min(32).required(),
+  JWT_REFRESH_SECRET: Joi.string().min(32).required(),
+  JWT_ACCESS_TTL: Joi.string().default('15m'),
+  JWT_REFRESH_TTL: Joi.string().default('7d'),
+  APP_PUBLIC_URL: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .default('http://localhost:3000'),
 });

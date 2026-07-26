@@ -12,6 +12,13 @@ export const MESSAGE_PATTERNS = {
     // TODO: add products RPC patterns (e.g. CREATE, GET_BY_ID, RESERVE_STOCK)
   },
   IDENTITY: {
-    // TODO: add identity RPC patterns (e.g. LOGIN, REGISTER, VALIDATE_TOKEN)
+    REGISTER: 'identity.register',
+    LOGIN: 'identity.login',
+    REFRESH_TOKEN: 'identity.refresh_token',
+    LOGOUT: 'identity.logout',
+    VALIDATE_TOKEN: 'identity.validate_token',
+    VERIFY_EMAIL: 'identity.verify_email',
+    FORGOT_PASSWORD: 'identity.forgot_password',
+    RESET_PASSWORD: 'identity.reset_password',
   },
 } as const;

@@ -17,21 +17,178 @@ export interface PingResponse {
   service: string;
 }
 
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface RegisterResponse {
+  identityId: string;
+  email: string;
+  status: string;
+  message: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface LogoutRequest {
+  refreshToken: string;
+}
+
+export interface LogoutResponse {
+  success: boolean;
+}
+
+export interface ValidateTokenRequest {
+  accessToken: string;
+}
+
+export interface ValidateTokenResponse {
+  valid: boolean;
+  identityId: string;
+  email: string;
+  role: string;
+  status: string;
+}
+
+export interface VerifyEmailRequest {
+  token: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface AuthTokensResponse {
+  identityId: string;
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
+}
+
 export const IDENTITY_PACKAGE_NAME = 'identity';
 
 export interface IdentityServiceClient {
   ping(request: PingRequest): Observable<PingResponse>;
+
+  register(request: RegisterRequest): Observable<RegisterResponse>;
+
+  login(request: LoginRequest): Observable<AuthTokensResponse>;
+
+  refreshToken(request: RefreshTokenRequest): Observable<AuthTokensResponse>;
+
+  logout(request: LogoutRequest): Observable<LogoutResponse>;
+
+  validateToken(
+    request: ValidateTokenRequest,
+  ): Observable<ValidateTokenResponse>;
+
+  verifyEmail(request: VerifyEmailRequest): Observable<AuthTokensResponse>;
+
+  forgotPassword(
+    request: ForgotPasswordRequest,
+  ): Observable<ForgotPasswordResponse>;
+
+  resetPassword(
+    request: ResetPasswordRequest,
+  ): Observable<ResetPasswordResponse>;
 }
 
 export interface IdentityServiceController {
   ping(
     request: PingRequest,
   ): Promise<PingResponse> | Observable<PingResponse> | PingResponse;
+
+  register(
+    request: RegisterRequest,
+  ):
+    Promise<RegisterResponse> | Observable<RegisterResponse> | RegisterResponse;
+
+  login(
+    request: LoginRequest,
+  ):
+    | Promise<AuthTokensResponse>
+    | Observable<AuthTokensResponse>
+    | AuthTokensResponse;
+
+  refreshToken(
+    request: RefreshTokenRequest,
+  ):
+    | Promise<AuthTokensResponse>
+    | Observable<AuthTokensResponse>
+    | AuthTokensResponse;
+
+  logout(
+    request: LogoutRequest,
+  ): Promise<LogoutResponse> | Observable<LogoutResponse> | LogoutResponse;
+
+  validateToken(
+    request: ValidateTokenRequest,
+  ):
+    | Promise<ValidateTokenResponse>
+    | Observable<ValidateTokenResponse>
+    | ValidateTokenResponse;
+
+  verifyEmail(
+    request: VerifyEmailRequest,
+  ):
+    | Promise<AuthTokensResponse>
+    | Observable<AuthTokensResponse>
+    | AuthTokensResponse;
+
+  forgotPassword(
+    request: ForgotPasswordRequest,
+  ):
+    | Promise<ForgotPasswordResponse>
+    | Observable<ForgotPasswordResponse>
+    | ForgotPasswordResponse;
+
+  resetPassword(
+    request: ResetPasswordRequest,
+  ):
+    | Promise<ResetPasswordResponse>
+    | Observable<ResetPasswordResponse>
+    | ResetPasswordResponse;
 }
 
 export function IdentityServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['ping'];
+    const grpcMethods: string[] = [
+      'ping',
+      'register',
+      'login',
+      'refreshToken',
+      'logout',
+      'validateToken',
+      'verifyEmail',
+      'forgotPassword',
+      'resetPassword',
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(
         constructor.prototype,

@@ -29,6 +29,7 @@ import { SearchUsersHandler } from './application/queries/search-users/search-us
 import { UserPersistenceMapper } from './infrastructure/persistence/mappers/user-persistence.mapper';
 import { UserRepository } from './domain/repositories/user.repository';
 import { TypeOrmUserRepository } from './infrastructure/persistence/repositories/typeorm-user.repository';
+import { UserRegisteredConsumer } from './infrastructure/messaging/user-registered.consumer';
 
 @Module({
   imports: [
@@ -40,7 +41,7 @@ import { TypeOrmUserRepository } from './infrastructure/persistence/repositories
     TypeOrmModule.forFeature([UserOrmEntity, AddressOrmEntity]),
     CqrsModule.forRoot(),
   ],
-  controllers: [UserGrpcController, UsersController],
+  controllers: [UserGrpcController, UsersController, UserRegisteredConsumer],
   providers: [
     CreateUserHandler,
     AddAddressHandler,

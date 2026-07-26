@@ -23,6 +23,7 @@ export interface ProductsGrpcService {
   ping(data: PingRequest): Observable<PingResponse>;
 }
 
+/** @deprecated Prefer IdentityServiceClient from libs/shared/generated/identity */
 export interface IdentityGrpcService {
   ping(data: PingRequest): Observable<PingResponse>;
 }

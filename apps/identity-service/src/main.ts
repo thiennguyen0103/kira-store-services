@@ -4,12 +4,14 @@ import { setupLogger } from 'libs/shared/logging';
 import { createGrpcOptions } from 'libs/shared/microservices';
 import { setupSwagger } from 'libs/shared/swagger';
 import { IdentityServiceModule } from './identity-service.module';
+import { DomainExceptionFilter } from './presentation/filters/domain-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(IdentityServiceModule, {
     bufferLogs: true,
   });
   setupLogger(app);
+  app.useGlobalFilters(new DomainExceptionFilter());
   app.connectMicroservice(
     createGrpcOptions('identity', getGrpcUrls().IDENTITY),
   );

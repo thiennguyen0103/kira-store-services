@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Address } from 'apps/users-service/src/domain/entities/address.entity';
 import { User } from 'apps/users-service/src/domain/entities/user.entity';
 import { UserRepository } from 'apps/users-service/src/domain/repositories/user.repository';
@@ -12,7 +13,9 @@ import { UserPersistenceMapper } from '../mappers/user-persistence.mapper';
 @Injectable()
 export class TypeOrmUserRepository extends UserRepository {
   constructor(
+    @InjectRepository(UserOrmEntity)
     private readonly users: Repository<UserOrmEntity>,
+    @InjectRepository(AddressOrmEntity)
     private readonly addresses: Repository<AddressOrmEntity>,
     private readonly mapper: UserPersistenceMapper,
     private readonly dataSource: DataSource,
