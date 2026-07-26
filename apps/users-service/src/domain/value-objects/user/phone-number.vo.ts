@@ -36,6 +36,22 @@ export class PhoneNumber extends ValueObject<PhoneNumberProps> {
     });
   }
 
+  public static restore(props: PhoneNumberProps): PhoneNumber {
+    return new PhoneNumber(props);
+  }
+
+  public static fromPersisted(
+    value: string,
+    defaultCountry: CountryCode = 'VN',
+  ): PhoneNumber {
+    const parsed = parsePhoneNumberFromString(value, defaultCountry);
+
+    return PhoneNumber.restore({
+      country: parsed?.country ?? defaultCountry,
+      number: parsed?.number ?? value,
+    });
+  }
+
   public get value(): string {
     return this.props.number;
   }

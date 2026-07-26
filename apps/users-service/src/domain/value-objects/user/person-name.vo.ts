@@ -27,6 +27,30 @@ export class PersonName extends ValueObject<PersonNameProps> {
     });
   }
 
+  public static restore(props: PersonNameProps): PersonName {
+    return new PersonName(props);
+  }
+
+  /**
+   * Rehydrate from a persisted full name (`firstName lastName`).
+   */
+  public static fromFullName(fullName: string): PersonName {
+    const normalized = this.normalize(fullName);
+    const spaceIndex = normalized.indexOf(' ');
+
+    if (spaceIndex === -1) {
+      return PersonName.restore({
+        firstName: normalized,
+        lastName: normalized,
+      });
+    }
+
+    return PersonName.restore({
+      firstName: normalized.slice(0, spaceIndex),
+      lastName: normalized.slice(spaceIndex + 1),
+    });
+  }
+
   public get firstName(): string {
     return this.props.firstName;
   }

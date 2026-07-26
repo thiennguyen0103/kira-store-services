@@ -8,6 +8,7 @@ import { Address } from './address.entity';
 import { UserAddressRemovedEvent } from '../events/user-address-removed.event';
 import { UserAddressAddedEvent } from '../events/user-address-added.event';
 import { DefaultAddressChangedEvent } from '../events/default-address-changed.event';
+import { UserAddressUpdatedEvent } from '../events/user-address-updated.event';
 
 export interface UserProps {
   identityId: IdentityId;
@@ -29,7 +30,7 @@ export class User extends AggregateRoot<UserId> {
   // Factory
   // ------------------------------------------------------------------
 
-  private static create(
+  public static create(
     id: UserId,
     identityId: IdentityId,
     profile: UserProfile,
@@ -100,6 +101,22 @@ export class User extends AggregateRoot<UserId> {
     this.touch();
 
     this.addDomainEvent(new UserAddressAddedEvent(this.id, address.id));
+  }
+
+  public updateAddress(address: Address): void {
+    const index = this.props.addresses.findIndex((x) =>
+      x.id.equals(address.id),
+    );
+
+    if (index === -1) {
+      throw new Error('Address not found.');
+    }
+
+    this.props.addresses[index] = address;
+
+    this.touch();
+
+    this.addDomainEvent(new UserAddressUpdatedEvent(this.id, address.id));
   }
 
   public removeAddress(addressId: string): void {

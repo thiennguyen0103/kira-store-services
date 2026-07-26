@@ -8,6 +8,13 @@ import {
   usersServiceEnvSchema,
 } from 'libs/shared/config';
 import { createLoggerModule } from 'libs/shared/logging';
+import { AddAddressHandler } from './application/commands/add-address/add-address.handler';
+import { CreateUserHandler } from './application/commands/create-user/create-user.handler';
+import { RemoveAddressHandler } from './application/commands/remove-address/remove-address.handler';
+import { SetDefaultAddressHandler } from './application/commands/set-default-address/set-default-address.handler';
+import { UpdateAddressHandler } from './application/commands/update-address/update-address.handler';
+import { UpdateAvatarHandler } from './application/commands/update-avatar/update-avatar.handler';
+import { UpdateProfileHandler } from './application/commands/update-profile/update-profile.handler';
 import { GetUserHandler } from './application/queries/get-user/get-user.handler';
 import { UserQueryRepository } from './application/queries/repositories/user-query.repository';
 import { TypeOrmUserQueryRepository } from './infrastructure/persistence/repositories/typeorm-user-query.repository';
@@ -20,6 +27,8 @@ import { GetDefaultAddressHandler } from './application/queries/get-default-addr
 import { GetUserByIdentityIdHandler } from './application/queries/get-user-by-identity-id/get-user-by-identity-id.handler';
 import { SearchUsersHandler } from './application/queries/search-users/search-users.handler';
 import { UserPersistenceMapper } from './infrastructure/persistence/mappers/user-persistence.mapper';
+import { UserRepository } from './domain/repositories/user.repository';
+import { TypeOrmUserRepository } from './infrastructure/persistence/repositories/typeorm-user.repository';
 
 @Module({
   imports: [
@@ -33,6 +42,13 @@ import { UserPersistenceMapper } from './infrastructure/persistence/mappers/user
   ],
   controllers: [UserGrpcController, UsersController],
   providers: [
+    CreateUserHandler,
+    AddAddressHandler,
+    UpdateAddressHandler,
+    RemoveAddressHandler,
+    SetDefaultAddressHandler,
+    UpdateProfileHandler,
+    UpdateAvatarHandler,
     GetUserHandler,
     GetAddressesHandler,
     GetDefaultAddressHandler,
@@ -42,6 +58,10 @@ import { UserPersistenceMapper } from './infrastructure/persistence/mappers/user
     {
       provide: UserQueryRepository,
       useClass: TypeOrmUserQueryRepository,
+    },
+    {
+      provide: UserRepository,
+      useClass: TypeOrmUserRepository,
     },
   ],
 })

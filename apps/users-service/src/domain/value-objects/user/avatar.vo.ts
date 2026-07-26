@@ -24,6 +24,10 @@ export class Avatar extends ValueObject<AvatarProps> {
     });
   }
 
+  public static restore(url: string): Avatar {
+    return new Avatar({ url });
+  }
+
   public get url(): string {
     return this.props.url;
   }

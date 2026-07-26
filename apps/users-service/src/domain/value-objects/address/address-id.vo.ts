@@ -5,7 +5,7 @@ export class AddressId extends UniqueId {
     super({ value });
   }
 
-  public static create(value: string): AddressId {
+  public static create(value?: string): AddressId {
     const id = value ?? this.generate();
 
     this.validate(id);
