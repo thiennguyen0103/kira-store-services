@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { getGrpcUrls } from 'libs/shared/constants';
 import { setupLogger } from 'libs/shared/logging';
@@ -12,6 +13,14 @@ async function bootstrap() {
   });
   setupLogger(app);
   app.useGlobalFilters(new DomainExceptionFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
   app.connectMicroservice(
     createGrpcOptions('identity', getGrpcUrls().IDENTITY),
   );

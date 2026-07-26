@@ -1,6 +1,21 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  AuthTokensResponseDto,
+  ForgotPasswordRequestDto,
+  LoginRequestDto,
+  LogoutRequestDto,
+  LogoutResponseDto,
+  RefreshTokenRequestDto,
+  RegisterRequestDto,
+  RegisterResponseDto,
+  ResetPasswordRequestDto,
+  SuccessMessageResponseDto,
+  ValidateTokenRequestDto,
+  ValidateTokenResponseDto,
+  VerifyEmailQueryDto,
+} from 'libs/shared/dto/auth';
 import { ForgotPasswordCommand } from '../application/commands/forgot-password/forgot-password.command';
 import { LoginCommand } from '../application/commands/login/login.command';
 import { LogoutCommand } from '../application/commands/logout/logout.command';
@@ -25,15 +40,9 @@ export class IdentityHttpController {
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new customer account' })
-  register(
-    @Body()
-    body: {
-      email: string;
-      password: string;
-      firstName: string;
-      lastName: string;
-    },
-  ): Promise<RegisterResult> {
+  @ApiBody({ type: RegisterRequestDto })
+  @ApiOkResponse({ type: RegisterResponseDto })
+  register(@Body() body: RegisterRequestDto): Promise<RegisterResult> {
     return this.commandBus.execute(
       new RegisterCommand(
         body.email,
@@ -46,44 +55,51 @@ export class IdentityHttpController {
 
   @Post('login')
   @ApiOperation({ summary: 'Sign in with email and password' })
-  login(
-    @Body() body: { email: string; password: string },
-  ): Promise<AuthTokensResult> {
+  @ApiBody({ type: LoginRequestDto })
+  @ApiOkResponse({ type: AuthTokensResponseDto })
+  login(@Body() body: LoginRequestDto): Promise<AuthTokensResult> {
     return this.commandBus.execute(new LoginCommand(body.email, body.password));
   }
 
   @Post('refresh')
   @ApiOperation({ summary: 'Rotate refresh token' })
-  refresh(@Body() body: { refreshToken: string }): Promise<AuthTokensResult> {
+  @ApiBody({ type: RefreshTokenRequestDto })
+  @ApiOkResponse({ type: AuthTokensResponseDto })
+  refresh(@Body() body: RefreshTokenRequestDto): Promise<AuthTokensResult> {
     return this.commandBus.execute(new RefreshTokenCommand(body.refreshToken));
   }
 
   @Post('logout')
   @ApiOperation({ summary: 'Revoke refresh token' })
-  logout(
-    @Body() body: { refreshToken: string },
-  ): Promise<{ success: boolean }> {
+  @ApiBody({ type: LogoutRequestDto })
+  @ApiOkResponse({ type: LogoutResponseDto })
+  logout(@Body() body: LogoutRequestDto): Promise<{ success: boolean }> {
     return this.commandBus.execute(new LogoutCommand(body.refreshToken));
   }
 
   @Get('verify-email')
   @ApiOperation({ summary: 'Verify email and issue tokens' })
-  verifyEmail(@Query('token') token: string): Promise<AuthTokensResult> {
-    return this.commandBus.execute(new VerifyEmailCommand(token));
+  @ApiOkResponse({ type: AuthTokensResponseDto })
+  verifyEmail(@Query() query: VerifyEmailQueryDto): Promise<AuthTokensResult> {
+    return this.commandBus.execute(new VerifyEmailCommand(query.token));
   }
 
   @Post('forgot-password')
   @ApiOperation({ summary: 'Request password reset email' })
+  @ApiBody({ type: ForgotPasswordRequestDto })
+  @ApiOkResponse({ type: SuccessMessageResponseDto })
   forgotPassword(
-    @Body() body: { email: string },
+    @Body() body: ForgotPasswordRequestDto,
   ): Promise<{ success: boolean; message: string }> {
     return this.commandBus.execute(new ForgotPasswordCommand(body.email));
   }
 
   @Post('reset-password')
   @ApiOperation({ summary: 'Reset password with token' })
+  @ApiBody({ type: ResetPasswordRequestDto })
+  @ApiOkResponse({ type: SuccessMessageResponseDto })
   resetPassword(
-    @Body() body: { token: string; newPassword: string },
+    @Body() body: ResetPasswordRequestDto,
   ): Promise<{ success: boolean; message: string }> {
     return this.commandBus.execute(
       new ResetPasswordCommand(body.token, body.newPassword),
@@ -92,8 +108,10 @@ export class IdentityHttpController {
 
   @Post('validate-token')
   @ApiOperation({ summary: 'Validate access token' })
+  @ApiBody({ type: ValidateTokenRequestDto })
+  @ApiOkResponse({ type: ValidateTokenResponseDto })
   validateToken(
-    @Body() body: { accessToken: string },
+    @Body() body: ValidateTokenRequestDto,
   ): Promise<ValidateTokenResult> {
     return this.queryBus.execute(new ValidateTokenQuery(body.accessToken));
   }

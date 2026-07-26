@@ -7,10 +7,23 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { status as GrpcStatus } from '@grpc/grpc-js';
 import { firstValueFrom } from 'rxjs';
+import {
+  AuthTokensResponseDto,
+  ForgotPasswordRequestDto,
+  LoginRequestDto,
+  LogoutRequestDto,
+  LogoutResponseDto,
+  RefreshTokenRequestDto,
+  RegisterRequestDto,
+  RegisterResponseDto,
+  ResetPasswordRequestDto,
+  SuccessMessageResponseDto,
+  VerifyEmailQueryDto,
+} from 'libs/shared/dto/auth';
 import type {
   AuthTokensResponse,
   ForgotPasswordResponse,
@@ -27,15 +40,9 @@ export class AuthController {
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new customer account' })
-  register(
-    @Body()
-    body: {
-      email: string;
-      password: string;
-      firstName: string;
-      lastName: string;
-    },
-  ): Promise<RegisterResponse> {
+  @ApiBody({ type: RegisterRequestDto })
+  @ApiOkResponse({ type: RegisterResponseDto })
+  register(@Body() body: RegisterRequestDto): Promise<RegisterResponse> {
     return this.call(() =>
       firstValueFrom(
         this.identityClient.register({
@@ -51,9 +58,9 @@ export class AuthController {
   @Post('login')
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'Sign in with email and password' })
-  login(
-    @Body() body: { email: string; password: string },
-  ): Promise<AuthTokensResponse> {
+  @ApiBody({ type: LoginRequestDto })
+  @ApiOkResponse({ type: AuthTokensResponseDto })
+  login(@Body() body: LoginRequestDto): Promise<AuthTokensResponse> {
     return this.call(() =>
       firstValueFrom(
         this.identityClient.login({
@@ -66,7 +73,9 @@ export class AuthController {
 
   @Post('refresh')
   @ApiOperation({ summary: 'Rotate refresh token' })
-  refresh(@Body() body: { refreshToken: string }): Promise<AuthTokensResponse> {
+  @ApiBody({ type: RefreshTokenRequestDto })
+  @ApiOkResponse({ type: AuthTokensResponseDto })
+  refresh(@Body() body: RefreshTokenRequestDto): Promise<AuthTokensResponse> {
     return this.call(() =>
       firstValueFrom(
         this.identityClient.refreshToken({
@@ -78,7 +87,9 @@ export class AuthController {
 
   @Post('logout')
   @ApiOperation({ summary: 'Revoke refresh token' })
-  logout(@Body() body: { refreshToken: string }): Promise<LogoutResponse> {
+  @ApiBody({ type: LogoutRequestDto })
+  @ApiOkResponse({ type: LogoutResponseDto })
+  logout(@Body() body: LogoutRequestDto): Promise<LogoutResponse> {
     return this.call(() =>
       firstValueFrom(
         this.identityClient.logout({ refreshToken: body.refreshToken }),
@@ -88,17 +99,22 @@ export class AuthController {
 
   @Get('verify-email')
   @ApiOperation({ summary: 'Verify email and issue tokens' })
-  verifyEmail(@Query('token') token: string): Promise<AuthTokensResponse> {
+  @ApiOkResponse({ type: AuthTokensResponseDto })
+  verifyEmail(
+    @Query() query: VerifyEmailQueryDto,
+  ): Promise<AuthTokensResponse> {
     return this.call(() =>
-      firstValueFrom(this.identityClient.verifyEmail({ token })),
+      firstValueFrom(this.identityClient.verifyEmail({ token: query.token })),
     );
   }
 
   @Post('forgot-password')
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiOperation({ summary: 'Request password reset email' })
+  @ApiBody({ type: ForgotPasswordRequestDto })
+  @ApiOkResponse({ type: SuccessMessageResponseDto })
   forgotPassword(
-    @Body() body: { email: string },
+    @Body() body: ForgotPasswordRequestDto,
   ): Promise<ForgotPasswordResponse> {
     return this.call(() =>
       firstValueFrom(this.identityClient.forgotPassword({ email: body.email })),
@@ -107,8 +123,10 @@ export class AuthController {
 
   @Post('reset-password')
   @ApiOperation({ summary: 'Reset password with token' })
+  @ApiBody({ type: ResetPasswordRequestDto })
+  @ApiOkResponse({ type: SuccessMessageResponseDto })
   resetPassword(
-    @Body() body: { token: string; newPassword: string },
+    @Body() body: ResetPasswordRequestDto,
   ): Promise<ResetPasswordResponse> {
     return this.call(() =>
       firstValueFrom(

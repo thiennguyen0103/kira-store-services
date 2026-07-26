@@ -11,8 +11,29 @@ export function setupSwagger(
     .setTitle(options.title)
     .setDescription(options.description ?? '')
     .setVersion(options.version ?? '1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Access token from login / refresh / verify-email',
+      },
+      'access-token',
+    )
     .build();
 
-  const document = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  const document = SwaggerModule.createDocument(app, config, {
+    operationIdFactory: (_controllerKey: string, methodKey: string) =>
+      methodKey,
+  });
+
+  SwaggerModule.setup('docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      docExpansion: 'list',
+      filter: true,
+      showRequestDuration: true,
+      tryItOutEnabled: true,
+    },
+  });
 }
