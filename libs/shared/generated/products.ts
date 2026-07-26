@@ -17,21 +17,518 @@ export interface PingResponse {
   service: string;
 }
 
+export interface Money {
+  amountMinor: number;
+  currency: string;
+}
+
+export interface VariantInput {
+  sku: string;
+  options: { [key: string]: string };
+  price: Money | undefined;
+  onHand: number;
+  barcode: string;
+  isActive: boolean;
+}
+
+export interface VariantInput_OptionsEntry {
+  key: string;
+  value: string;
+}
+
+export interface ImageInput {
+  url: string;
+  alt: string;
+  sortOrder: number;
+  isPrimary: boolean;
+}
+
+export interface Variant {
+  id: string;
+  sku: string;
+  options: { [key: string]: string };
+  price: Money | undefined;
+  onHand: number;
+  reserved: number;
+  available: number;
+  barcode: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Variant_OptionsEntry {
+  key: string;
+  value: string;
+}
+
+export interface Image {
+  id: string;
+  url: string;
+  alt: string;
+  sortOrder: number;
+  isPrimary: boolean;
+}
+
+export interface ProductResponse {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  status: string;
+  categoryId: string;
+  brandId: string;
+  variants: Variant[];
+  images: Image[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductListItem {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  categoryId: string;
+  brandId: string;
+  primaryImageUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateProductRequest {
+  name: string;
+  slug: string;
+  categoryId: string;
+  description: string;
+  brandId: string;
+  variants: VariantInput[];
+  images: ImageInput[];
+}
+
+export interface UpdateProductRequest {
+  productId: string;
+  name: string;
+  slug: string;
+  description: string;
+  categoryId: string;
+  brandId: string;
+  clearDescription: boolean;
+  clearBrand: boolean;
+}
+
+export interface GetProductRequest {
+  productId: string;
+}
+
+export interface GetProductBySlugRequest {
+  slug: string;
+}
+
+export interface ListProductsRequest {
+  page: number;
+  limit: number;
+  status: string;
+  categoryId: string;
+  brandId: string;
+  query: string;
+}
+
+export interface ListProductsResponse {
+  items: ProductListItem[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface PublishProductRequest {
+  productId: string;
+}
+
+export interface ArchiveProductRequest {
+  productId: string;
+}
+
+export interface AddVariantRequest {
+  productId: string;
+  variant: VariantInput | undefined;
+}
+
+export interface UpdateVariantRequest {
+  productId: string;
+  variantId: string;
+  options: { [key: string]: string };
+  price: Money | undefined;
+  barcode: string;
+  isActive: boolean;
+  clearBarcode: boolean;
+  hasOptions: boolean;
+  hasPrice: boolean;
+  hasIsActive: boolean;
+}
+
+export interface UpdateVariantRequest_OptionsEntry {
+  key: string;
+  value: string;
+}
+
+export interface RemoveVariantRequest {
+  productId: string;
+  variantId: string;
+}
+
+export interface SetProductImagesRequest {
+  productId: string;
+  images: ImageInput[];
+}
+
+export interface AdjustStockRequest {
+  productId: string;
+  variantId: string;
+  delta: number;
+}
+
+export interface StockItem {
+  productId: string;
+  variantId: string;
+  quantity: number;
+}
+
+export interface ReserveStockRequest {
+  orderId: string;
+  items: StockItem[];
+}
+
+export interface ReleaseStockRequest {
+  orderId: string;
+  items: StockItem[];
+}
+
+export interface StockMutationResponse {
+  orderId: string;
+  success: boolean;
+  message: string;
+}
+
+export interface BrandResponse {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateBrandRequest {
+  name: string;
+  slug: string;
+  logoUrl: string;
+}
+
+export interface UpdateBrandRequest {
+  brandId: string;
+  name: string;
+  logoUrl: string;
+  clearLogo: boolean;
+}
+
+export interface GetBrandRequest {
+  brandId: string;
+}
+
+export interface ListBrandsRequest {
+  page: number;
+  limit: number;
+  activeOnly: boolean;
+}
+
+export interface ListBrandsResponse {
+  items: BrandResponse[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface SetBrandActiveRequest {
+  brandId: string;
+  isActive: boolean;
+}
+
+export interface CategoryResponse {
+  id: string;
+  name: string;
+  slug: string;
+  path: string;
+  parentId: string;
+  isActive: boolean;
+  depth: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCategoryRequest {
+  name: string;
+  slug: string;
+  parentId: string;
+}
+
+export interface UpdateCategoryRequest {
+  categoryId: string;
+  name: string;
+}
+
+export interface GetCategoryRequest {
+  categoryId: string;
+}
+
+export interface ListCategoriesRequest {
+  page: number;
+  limit: number;
+  activeOnly: boolean;
+  parentId: string;
+}
+
+export interface ListCategoriesResponse {
+  items: CategoryResponse[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface GetCategoryChildrenRequest {
+  parentId: string;
+}
+
+export interface SetCategoryActiveRequest {
+  categoryId: string;
+  isActive: boolean;
+}
+
 export const PRODUCTS_PACKAGE_NAME = 'products';
 
 export interface ProductsServiceClient {
   ping(request: PingRequest): Observable<PingResponse>;
+
+  createProduct(request: CreateProductRequest): Observable<ProductResponse>;
+
+  updateProduct(request: UpdateProductRequest): Observable<ProductResponse>;
+
+  getProduct(request: GetProductRequest): Observable<ProductResponse>;
+
+  getProductBySlug(
+    request: GetProductBySlugRequest,
+  ): Observable<ProductResponse>;
+
+  listProducts(request: ListProductsRequest): Observable<ListProductsResponse>;
+
+  publishProduct(request: PublishProductRequest): Observable<ProductResponse>;
+
+  archiveProduct(request: ArchiveProductRequest): Observable<ProductResponse>;
+
+  addVariant(request: AddVariantRequest): Observable<ProductResponse>;
+
+  updateVariant(request: UpdateVariantRequest): Observable<ProductResponse>;
+
+  removeVariant(request: RemoveVariantRequest): Observable<ProductResponse>;
+
+  setProductImages(
+    request: SetProductImagesRequest,
+  ): Observable<ProductResponse>;
+
+  adjustStock(request: AdjustStockRequest): Observable<ProductResponse>;
+
+  reserveStock(request: ReserveStockRequest): Observable<StockMutationResponse>;
+
+  releaseStock(request: ReleaseStockRequest): Observable<StockMutationResponse>;
+
+  createBrand(request: CreateBrandRequest): Observable<BrandResponse>;
+
+  updateBrand(request: UpdateBrandRequest): Observable<BrandResponse>;
+
+  getBrand(request: GetBrandRequest): Observable<BrandResponse>;
+
+  listBrands(request: ListBrandsRequest): Observable<ListBrandsResponse>;
+
+  setBrandActive(request: SetBrandActiveRequest): Observable<BrandResponse>;
+
+  createCategory(request: CreateCategoryRequest): Observable<CategoryResponse>;
+
+  updateCategory(request: UpdateCategoryRequest): Observable<CategoryResponse>;
+
+  getCategory(request: GetCategoryRequest): Observable<CategoryResponse>;
+
+  listCategories(
+    request: ListCategoriesRequest,
+  ): Observable<ListCategoriesResponse>;
+
+  getCategoryChildren(
+    request: GetCategoryChildrenRequest,
+  ): Observable<ListCategoriesResponse>;
+
+  setCategoryActive(
+    request: SetCategoryActiveRequest,
+  ): Observable<CategoryResponse>;
 }
 
 export interface ProductsServiceController {
   ping(
     request: PingRequest,
   ): Promise<PingResponse> | Observable<PingResponse> | PingResponse;
+
+  createProduct(
+    request: CreateProductRequest,
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  updateProduct(
+    request: UpdateProductRequest,
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  getProduct(
+    request: GetProductRequest,
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  getProductBySlug(
+    request: GetProductBySlugRequest,
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  listProducts(
+    request: ListProductsRequest,
+  ):
+    | Promise<ListProductsResponse>
+    | Observable<ListProductsResponse>
+    | ListProductsResponse;
+
+  publishProduct(
+    request: PublishProductRequest,
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  archiveProduct(
+    request: ArchiveProductRequest,
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  addVariant(
+    request: AddVariantRequest,
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  updateVariant(
+    request: UpdateVariantRequest,
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  removeVariant(
+    request: RemoveVariantRequest,
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  setProductImages(
+    request: SetProductImagesRequest,
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  adjustStock(
+    request: AdjustStockRequest,
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  reserveStock(
+    request: ReserveStockRequest,
+  ):
+    | Promise<StockMutationResponse>
+    | Observable<StockMutationResponse>
+    | StockMutationResponse;
+
+  releaseStock(
+    request: ReleaseStockRequest,
+  ):
+    | Promise<StockMutationResponse>
+    | Observable<StockMutationResponse>
+    | StockMutationResponse;
+
+  createBrand(
+    request: CreateBrandRequest,
+  ): Promise<BrandResponse> | Observable<BrandResponse> | BrandResponse;
+
+  updateBrand(
+    request: UpdateBrandRequest,
+  ): Promise<BrandResponse> | Observable<BrandResponse> | BrandResponse;
+
+  getBrand(
+    request: GetBrandRequest,
+  ): Promise<BrandResponse> | Observable<BrandResponse> | BrandResponse;
+
+  listBrands(
+    request: ListBrandsRequest,
+  ):
+    | Promise<ListBrandsResponse>
+    | Observable<ListBrandsResponse>
+    | ListBrandsResponse;
+
+  setBrandActive(
+    request: SetBrandActiveRequest,
+  ): Promise<BrandResponse> | Observable<BrandResponse> | BrandResponse;
+
+  createCategory(
+    request: CreateCategoryRequest,
+  ):
+    Promise<CategoryResponse> | Observable<CategoryResponse> | CategoryResponse;
+
+  updateCategory(
+    request: UpdateCategoryRequest,
+  ):
+    Promise<CategoryResponse> | Observable<CategoryResponse> | CategoryResponse;
+
+  getCategory(
+    request: GetCategoryRequest,
+  ):
+    Promise<CategoryResponse> | Observable<CategoryResponse> | CategoryResponse;
+
+  listCategories(
+    request: ListCategoriesRequest,
+  ):
+    | Promise<ListCategoriesResponse>
+    | Observable<ListCategoriesResponse>
+    | ListCategoriesResponse;
+
+  getCategoryChildren(
+    request: GetCategoryChildrenRequest,
+  ):
+    | Promise<ListCategoriesResponse>
+    | Observable<ListCategoriesResponse>
+    | ListCategoriesResponse;
+
+  setCategoryActive(
+    request: SetCategoryActiveRequest,
+  ):
+    Promise<CategoryResponse> | Observable<CategoryResponse> | CategoryResponse;
 }
 
 export function ProductsServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['ping'];
+    const grpcMethods: string[] = [
+      'ping',
+      'createProduct',
+      'updateProduct',
+      'getProduct',
+      'getProductBySlug',
+      'listProducts',
+      'publishProduct',
+      'archiveProduct',
+      'addVariant',
+      'updateVariant',
+      'removeVariant',
+      'setProductImages',
+      'adjustStock',
+      'reserveStock',
+      'releaseStock',
+      'createBrand',
+      'updateBrand',
+      'getBrand',
+      'listBrands',
+      'setBrandActive',
+      'createCategory',
+      'updateCategory',
+      'getCategory',
+      'listCategories',
+      'getCategoryChildren',
+      'setCategoryActive',
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(
         constructor.prototype,

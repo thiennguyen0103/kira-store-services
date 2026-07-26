@@ -4,6 +4,36 @@ package products;
 
 service ProductsService {
   rpc Ping (PingRequest) returns (PingResponse);
+
+  rpc CreateProduct (CreateProductRequest) returns (ProductResponse);
+  rpc UpdateProduct (UpdateProductRequest) returns (ProductResponse);
+  rpc GetProduct (GetProductRequest) returns (ProductResponse);
+  rpc GetProductBySlug (GetProductBySlugRequest) returns (ProductResponse);
+  rpc ListProducts (ListProductsRequest) returns (ListProductsResponse);
+  rpc PublishProduct (PublishProductRequest) returns (ProductResponse);
+  rpc ArchiveProduct (ArchiveProductRequest) returns (ProductResponse);
+
+  rpc AddVariant (AddVariantRequest) returns (ProductResponse);
+  rpc UpdateVariant (UpdateVariantRequest) returns (ProductResponse);
+  rpc RemoveVariant (RemoveVariantRequest) returns (ProductResponse);
+  rpc SetProductImages (SetProductImagesRequest) returns (ProductResponse);
+
+  rpc AdjustStock (AdjustStockRequest) returns (ProductResponse);
+  rpc ReserveStock (ReserveStockRequest) returns (StockMutationResponse);
+  rpc ReleaseStock (ReleaseStockRequest) returns (StockMutationResponse);
+
+  rpc CreateBrand (CreateBrandRequest) returns (BrandResponse);
+  rpc UpdateBrand (UpdateBrandRequest) returns (BrandResponse);
+  rpc GetBrand (GetBrandRequest) returns (BrandResponse);
+  rpc ListBrands (ListBrandsRequest) returns (ListBrandsResponse);
+  rpc SetBrandActive (SetBrandActiveRequest) returns (BrandResponse);
+
+  rpc CreateCategory (CreateCategoryRequest) returns (CategoryResponse);
+  rpc UpdateCategory (UpdateCategoryRequest) returns (CategoryResponse);
+  rpc GetCategory (GetCategoryRequest) returns (CategoryResponse);
+  rpc ListCategories (ListCategoriesRequest) returns (ListCategoriesResponse);
+  rpc GetCategoryChildren (GetCategoryChildrenRequest) returns (ListCategoriesResponse);
+  rpc SetCategoryActive (SetCategoryActiveRequest) returns (CategoryResponse);
 }
 
 message PingRequest {}
@@ -11,4 +41,277 @@ message PingRequest {}
 message PingResponse {
   bool ok = 1;
   string service = 2;
+}
+
+message Money {
+  int64 amount_minor = 1;
+  string currency = 2;
+}
+
+message VariantInput {
+  string sku = 1;
+  map<string, string> options = 2;
+  Money price = 3;
+  int32 on_hand = 4;
+  string barcode = 5;
+  bool is_active = 6;
+}
+
+message ImageInput {
+  string url = 1;
+  string alt = 2;
+  int32 sort_order = 3;
+  bool is_primary = 4;
+}
+
+message Variant {
+  string id = 1;
+  string sku = 2;
+  map<string, string> options = 3;
+  Money price = 4;
+  int32 on_hand = 5;
+  int32 reserved = 6;
+  int32 available = 7;
+  string barcode = 8;
+  bool is_active = 9;
+  string created_at = 10;
+  string updated_at = 11;
+}
+
+message Image {
+  string id = 1;
+  string url = 2;
+  string alt = 3;
+  int32 sort_order = 4;
+  bool is_primary = 5;
+}
+
+message ProductResponse {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+  string status = 5;
+  string category_id = 6;
+  string brand_id = 7;
+  repeated Variant variants = 8;
+  repeated Image images = 9;
+  string created_at = 10;
+  string updated_at = 11;
+}
+
+message ProductListItem {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string status = 4;
+  string category_id = 5;
+  string brand_id = 6;
+  string primary_image_url = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message CreateProductRequest {
+  string name = 1;
+  string slug = 2;
+  string category_id = 3;
+  string description = 4;
+  string brand_id = 5;
+  repeated VariantInput variants = 6;
+  repeated ImageInput images = 7;
+}
+
+message UpdateProductRequest {
+  string product_id = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+  string category_id = 5;
+  string brand_id = 6;
+  bool clear_description = 7;
+  bool clear_brand = 8;
+}
+
+message GetProductRequest {
+  string product_id = 1;
+}
+
+message GetProductBySlugRequest {
+  string slug = 1;
+}
+
+message ListProductsRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  string status = 3;
+  string category_id = 4;
+  string brand_id = 5;
+  string query = 6;
+}
+
+message ListProductsResponse {
+  repeated ProductListItem items = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+message PublishProductRequest {
+  string product_id = 1;
+}
+
+message ArchiveProductRequest {
+  string product_id = 1;
+}
+
+message AddVariantRequest {
+  string product_id = 1;
+  VariantInput variant = 2;
+}
+
+message UpdateVariantRequest {
+  string product_id = 1;
+  string variant_id = 2;
+  map<string, string> options = 3;
+  Money price = 4;
+  string barcode = 5;
+  bool is_active = 6;
+  bool clear_barcode = 7;
+  bool has_options = 8;
+  bool has_price = 9;
+  bool has_is_active = 10;
+}
+
+message RemoveVariantRequest {
+  string product_id = 1;
+  string variant_id = 2;
+}
+
+message SetProductImagesRequest {
+  string product_id = 1;
+  repeated ImageInput images = 2;
+}
+
+message AdjustStockRequest {
+  string product_id = 1;
+  string variant_id = 2;
+  int32 delta = 3;
+}
+
+message StockItem {
+  string product_id = 1;
+  string variant_id = 2;
+  int32 quantity = 3;
+}
+
+message ReserveStockRequest {
+  string order_id = 1;
+  repeated StockItem items = 2;
+}
+
+message ReleaseStockRequest {
+  string order_id = 1;
+  repeated StockItem items = 2;
+}
+
+message StockMutationResponse {
+  string order_id = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message BrandResponse {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string logo_url = 4;
+  bool is_active = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message CreateBrandRequest {
+  string name = 1;
+  string slug = 2;
+  string logo_url = 3;
+}
+
+message UpdateBrandRequest {
+  string brand_id = 1;
+  string name = 2;
+  string logo_url = 3;
+  bool clear_logo = 4;
+}
+
+message GetBrandRequest {
+  string brand_id = 1;
+}
+
+message ListBrandsRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  bool active_only = 3;
+}
+
+message ListBrandsResponse {
+  repeated BrandResponse items = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+message SetBrandActiveRequest {
+  string brand_id = 1;
+  bool is_active = 2;
+}
+
+message CategoryResponse {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string path = 4;
+  string parent_id = 5;
+  bool is_active = 6;
+  int32 depth = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message CreateCategoryRequest {
+  string name = 1;
+  string slug = 2;
+  string parent_id = 3;
+}
+
+message UpdateCategoryRequest {
+  string category_id = 1;
+  string name = 2;
+}
+
+message GetCategoryRequest {
+  string category_id = 1;
+}
+
+message ListCategoriesRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  bool active_only = 3;
+  string parent_id = 4;
+}
+
+message ListCategoriesResponse {
+  repeated CategoryResponse items = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+message GetCategoryChildrenRequest {
+  string parent_id = 1;
+}
+
+message SetCategoryActiveRequest {
+  string category_id = 1;
+  bool is_active = 2;
 }

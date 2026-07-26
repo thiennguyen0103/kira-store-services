@@ -19,6 +19,7 @@ export interface PaymentsGrpcService {
   ping(data: PingRequest): Observable<PingResponse>;
 }
 
+/** @deprecated Prefer ProductsServiceClient from libs/shared/generated/products */
 export interface ProductsGrpcService {
   ping(data: PingRequest): Observable<PingResponse>;
 }
