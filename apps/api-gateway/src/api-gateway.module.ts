@@ -18,6 +18,9 @@ import { PaymentsClient } from './infrastructure/client/payments.client';
 import { ProductsClient } from './infrastructure/client/products.client';
 import { UsersClient } from './infrastructure/client/users.client';
 import { AuthController } from './presentation/auth.controller';
+import { BrandsController } from './presentation/brands.controller';
+import { CategoriesController } from './presentation/categories.controller';
+import { ProductsController } from './presentation/products.controller';
 import { UsersController } from './presentation/users.controller';
 
 @Module({
@@ -48,7 +51,13 @@ import { UsersController } from './presentation/users.controller';
       },
     ]),
   ],
-  controllers: [UsersController, AuthController],
+  controllers: [
+    UsersController,
+    AuthController,
+    ProductsController,
+    BrandsController,
+    CategoriesController,
+  ],
   providers: [
     { provide: UsersClientPort, useClass: UsersClient },
     { provide: OrdersClientPort, useClass: OrdersClient },
