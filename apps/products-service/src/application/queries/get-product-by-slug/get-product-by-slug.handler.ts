@@ -2,19 +2,19 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { ProductDetailDto } from 'apps/products-service/src/application/dto/product.dto';
 import { ProductNotFoundException } from 'apps/products-service/src/domain/exceptions/product-not-found.exception';
 import { ProductQueryRepository } from '../repositories/product-query.repository';
-import { GetProductQuery } from './get-product.query';
+import { GetProductBySlugQuery } from './get-product-by-slug.query';
 
-@QueryHandler(GetProductQuery)
-export class GetProductHandler implements IQueryHandler<GetProductQuery> {
+@QueryHandler(GetProductBySlugQuery)
+export class GetProductBySlugHandler implements IQueryHandler<GetProductBySlugQuery> {
   constructor(
     private readonly productQueryRepository: ProductQueryRepository,
   ) {}
 
-  async execute(query: GetProductQuery): Promise<ProductDetailDto> {
-    const product = await this.productQueryRepository.findById(query.productId);
+  async execute(query: GetProductBySlugQuery): Promise<ProductDetailDto> {
+    const product = await this.productQueryRepository.findBySlug(query.slug);
 
     if (!product) {
-      throw new ProductNotFoundException(query.productId);
+      throw new ProductNotFoundException(query.slug);
     }
 
     return product;

@@ -1,3 +1,3 @@
-export class GetProductQuery {
+export class PublishProductCommand {
   constructor(public readonly productId: string) {}
 }
