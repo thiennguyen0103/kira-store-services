@@ -1,14 +1,18 @@
 # Development overlay — Nest microservices with hot reload.
 # Merges with the infra stack in docker-compose.yml.
 #
-#   pnpm docker:dev          # infra + apps
+#   pnpm docker:dev          # infra + apps (cached image)
+#   pnpm docker:dev:build    # rebuild shared image, then up
 #   pnpm docker:dev:down
 #   docker compose up -d     # infra only
+#
+# Prefer hybrid on Windows: pnpm docker:up && pnpm dev:apps
 
 x-nest-service: &nest-service
   build:
     context: .
     dockerfile: Dockerfile.dev
+  image: kira-nest-dev:latest
   restart: unless-stopped
   working_dir: /app
   volumes:
@@ -165,20 +169,9 @@ services:
       PRODUCTS_GRPC_URL: products-service:5004
       IDENTITY_GRPC_URL: identity-service:5005
       MEDIA_GRPC_URL: media-service:5006
+    # Infra only — gateway reconnects to gRPC peers as they become ready.
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      identity-service:
-        condition: service_started
-      users-service:
-        condition: service_started
-      orders-service:
-        condition: service_started
-      payments-service:
-        condition: service_started
-      products-service:
-        condition: service_started
-      media-service:
-        condition: service_started

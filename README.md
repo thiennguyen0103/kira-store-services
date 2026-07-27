@@ -52,13 +52,21 @@ Shared code lives in `libs/shared` (proto contracts, events, config, logging, ma
 - [pnpm](https://pnpm.io/) 11 (`packageManager` is pinned in `package.json`)
 - Docker & Docker Compose
 
-## Quick start (Docker)
+## Quick start (recommended)
 
-Full stack (infra + all Nest apps with hot reload):
+**Hybrid:** Docker for infra only, Nest apps on the host. Fastest on Windows (avoids slow bind mounts into containers).
 
 ```bash
 pnpm install
-pnpm docker:dev
+# copy env examples once (see below)
+pnpm dev                 # docker:up + all Nest apps with --watch
+```
+
+Or step by step:
+
+```bash
+pnpm docker:up           # Postgres, RabbitMQ, MinIO, Loki, Grafana
+pnpm dev:apps            # all 7 Nest services on the host
 ```
 
 | Resource      | URL                                                 |
@@ -70,52 +78,40 @@ pnpm docker:dev
 | MinIO Console | http://localhost:9001 (`minioadmin` / `minioadmin`) |
 | Seeded admin  | `admin@kira.store` / `Admin123!` (dev only)         |
 
-Useful commands:
+### Full stack in Docker
+
+Use when you want everything containerized (slower file watching on Windows):
 
 ```bash
-pnpm docker:dev:logs    # follow logs
-pnpm docker:dev:ps      # container status
-pnpm docker:dev:down    # stop stack
-pnpm docker:dev:reset   # stop + wipe volumes
+pnpm docker:dev          # start (reuses shared image)
+pnpm docker:dev:build    # rebuild image after Dockerfile / lockfile changes
 ```
-
-Infra only (Postgres, RabbitMQ, Loki, Grafana, MinIO):
 
 ```bash
-pnpm docker:up
+pnpm docker:dev:logs     # follow logs
+pnpm docker:dev:ps       # container status
+pnpm docker:dev:down     # stop stack
+pnpm docker:dev:reset    # stop + wipe volumes
 ```
 
-## Local development (host)
+All Nest services share one image (`kira-nest-dev:latest`). Rebuild only when dependencies or `Dockerfile.dev` change.
 
-1. Start infrastructure:
+### Env setup (once)
 
-   ```bash
-   pnpm docker:up
-   ```
-
-2. Copy env examples per service:
-
-   ```bash
-   cp .env.example .env
-   cp apps/api-gateway/.env.example apps/api-gateway/.env
-   cp apps/identity-service/.env.example apps/identity-service/.env
-   cp apps/users-service/.env.example apps/users-service/.env
-   cp apps/orders-service/.env.example apps/orders-service/.env
-   cp apps/payments-service/.env.example apps/payments-service/.env
-   cp apps/products-service/.env.example apps/products-service/.env
-   cp apps/media-service/.env.example apps/media-service/.env
-   ```
-
-3. Install and run services (separate terminals):
-
-   ```bash
-   pnpm install
-   pnpm exec nest start api-gateway --watch
-   pnpm exec nest start identity-service --watch
-   # …repeat for users, orders, payments, products, media
-   ```
+```bash
+cp .env.example .env
+cp apps/api-gateway/.env.example apps/api-gateway/.env
+cp apps/identity-service/.env.example apps/identity-service/.env
+cp apps/users-service/.env.example apps/users-service/.env
+cp apps/orders-service/.env.example apps/orders-service/.env
+cp apps/payments-service/.env.example apps/payments-service/.env
+cp apps/products-service/.env.example apps/products-service/.env
+cp apps/media-service/.env.example apps/media-service/.env
+```
 
 Payment providers need real credentials in `apps/payments-service/.env` (`STRIPE_*`, `PAYOS_*`) when exercising checkout flows.
+
+**Tip (Windows):** clone/run the repo from the WSL filesystem (`\\wsl$\...`) if you still use `docker:dev` — bind mounts from `/mnt/c` are much slower.
 
 ## Project structure
 
@@ -142,16 +138,19 @@ docker-compose.dev.yml  # Nest apps overlay
 
 ## Scripts
 
-| Script                | Description                                   |
-| --------------------- | --------------------------------------------- |
-| `pnpm build`          | Build Nest projects                           |
-| `pnpm start:dev`      | Start default app (api-gateway) in watch mode |
-| `pnpm lint`           | Oxlint (type-aware) + Prettier check          |
-| `pnpm format`         | Prettier write                                |
-| `pnpm test`           | Unit tests (Jest)                             |
-| `pnpm test:cov`       | Coverage                                      |
-| `pnpm generate:proto` | Regenerate TypeScript from `.proto` files     |
-| `pnpm docker:dev`     | Infra + apps with hot reload                  |
+| Script                  | Description                                             |
+| ----------------------- | ------------------------------------------------------- |
+| `pnpm build`            | Build Nest projects                                     |
+| `pnpm start:dev`        | Start default app (api-gateway) in watch mode           |
+| `pnpm lint`             | Oxlint (type-aware) + Prettier check                    |
+| `pnpm format`           | Prettier write                                          |
+| `pnpm test`             | Unit tests (Jest)                                       |
+| `pnpm test:cov`         | Coverage                                                |
+| `pnpm generate:proto`   | Regenerate TypeScript from `.proto` files               |
+| `pnpm docker:up`        | Infra only (Postgres, RabbitMQ, MinIO, Loki, Grafana)   |
+| `pnpm dev` / `dev:apps` | Recommended: infra + host Nest apps with watch          |
+| `pnpm docker:dev`       | Full stack in Docker (reuses image; no rebuild)         |
+| `pnpm docker:dev:build` | Rebuild shared Nest image, then start full Docker stack |
 
 After changing files under `libs/shared/proto/`, regenerate clients:
 
