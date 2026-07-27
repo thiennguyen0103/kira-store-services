@@ -8,6 +8,7 @@ import { IdentityId } from '../../../domain/value-objects/identity-id.vo';
 import { Password } from '../../../domain/value-objects/password.vo';
 import { PasswordHasher } from '../../ports/password-hasher.port';
 import { TokenService } from '../../ports/token-service.port';
+import { IdentityDomainEventDispatcher } from '../../services/identity-domain-event.dispatcher';
 import { ResetPasswordCommand } from './reset-password.command';
 
 @CommandHandler(ResetPasswordCommand)
@@ -18,6 +19,7 @@ export class ResetPasswordHandler implements ICommandHandler<ResetPasswordComman
     private readonly refreshTokens: RefreshTokenRepository,
     private readonly passwordHasher: PasswordHasher,
     private readonly tokenService: TokenService,
+    private readonly domainEvents: IdentityDomainEventDispatcher,
   ) {}
 
   async execute(
@@ -48,6 +50,7 @@ export class ResetPasswordHandler implements ICommandHandler<ResetPasswordComman
     );
     account.changePassword(hash);
     await this.identities.save(account);
+    await this.domainEvents.dispatch(account);
     await this.verificationTokens.consumePasswordReset(record.id);
     await this.verificationTokens.invalidatePasswordResetsForIdentity(
       account.id.value,

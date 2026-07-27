@@ -8,6 +8,7 @@ import { RefreshTokenId } from '../../../domain/value-objects/refresh-token-id.v
 import { PasswordHasher } from '../../ports/password-hasher.port';
 import { TokenService } from '../../ports/token-service.port';
 import type { AuthTokensResult } from '../../dto/auth-result.dto';
+import { IdentityDomainEventDispatcher } from '../../services/identity-domain-event.dispatcher';
 import { LoginCommand } from './login.command';
 
 @CommandHandler(LoginCommand)
@@ -17,6 +18,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     private readonly refreshTokens: RefreshTokenRepository,
     private readonly passwordHasher: PasswordHasher,
     private readonly tokenService: TokenService,
+    private readonly domainEvents: IdentityDomainEventDispatcher,
   ) {}
 
   async execute(command: LoginCommand): Promise<AuthTokensResult> {
@@ -44,6 +46,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     if (!passwordOk) {
       account.recordFailedLogin();
       await this.identities.save(account);
+      await this.domainEvents.dispatch(account);
       throw new DomainException('Invalid email or password.', {
         code: 'INVALID_CREDENTIALS',
       });
@@ -53,11 +56,13 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
       account.assertCanAuthenticate();
     } catch (error) {
       await this.identities.save(account);
+      await this.domainEvents.dispatch(account);
       throw error;
     }
 
     account.resetFailedLogins();
     await this.identities.save(account);
+    await this.domainEvents.dispatch(account);
 
     const issued = await this.tokenService.issueTokens({
       sub: account.id.value,

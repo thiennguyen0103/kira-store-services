@@ -25,6 +25,7 @@ import { EmailPort } from './application/ports/email.port';
 import { PasswordHasher } from './application/ports/password-hasher.port';
 import { TokenService } from './application/ports/token-service.port';
 import { ValidateTokenHandler } from './application/queries/validate-token/validate-token.handler';
+import { IdentityDomainEventDispatcher } from './application/services/identity-domain-event.dispatcher';
 import { IdentityRepository } from './domain/repositories/identity.repository';
 import { RefreshTokenRepository } from './domain/repositories/refresh-token.repository';
 import { VerificationTokenRepository } from './domain/repositories/verification-token.repository';
@@ -44,7 +45,6 @@ import { TypeOrmVerificationTokenRepository } from './infrastructure/persistence
 import { Argon2PasswordHasher } from './infrastructure/security/argon2-password-hasher';
 import { JwtTokenService } from './infrastructure/security/jwt-token.service';
 import { IdentityGrpcController } from './presentation/identity.grpc.controller';
-import { IdentityHttpController } from './presentation/identity.http.controller';
 
 @Module({
   imports: [
@@ -76,7 +76,7 @@ import { IdentityHttpController } from './presentation/identity.http.controller'
       },
     ]),
   ],
-  controllers: [IdentityGrpcController, IdentityHttpController],
+  controllers: [IdentityGrpcController],
   providers: [
     RegisterHandler,
     LoginHandler,
@@ -86,6 +86,7 @@ import { IdentityHttpController } from './presentation/identity.http.controller'
     ForgotPasswordHandler,
     ResetPasswordHandler,
     ValidateTokenHandler,
+    IdentityDomainEventDispatcher,
     IdentityPersistenceMapper,
     { provide: IdentityRepository, useClass: TypeOrmIdentityRepository },
     {

@@ -1,9 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ConfigService } from '@nestjs/config';
 import { DomainException } from 'libs/shared/exceptions/domain.exception';
-import { EVENT_NAMES } from 'libs/shared/constants';
-import type { UserRegisteredEvent } from 'libs/shared/events';
-import { EventPublisher } from 'libs/shared/interfaces';
 import { IdentityAccount } from '../../../domain/entities/identity-account.entity';
 import { IdentityRepository } from '../../../domain/repositories/identity.repository';
 import { VerificationTokenRepository } from '../../../domain/repositories/verification-token.repository';
@@ -15,6 +12,7 @@ import { EmailPort } from '../../ports/email.port';
 import { PasswordHasher } from '../../ports/password-hasher.port';
 import { TokenService } from '../../ports/token-service.port';
 import type { RegisterResult } from '../../dto/auth-result.dto';
+import { IdentityDomainEventDispatcher } from '../../services/identity-domain-event.dispatcher';
 import { RegisterCommand } from './register.command';
 
 const EMAIL_VERIFY_TTL_MS = 24 * 60 * 60 * 1000;
@@ -27,7 +25,7 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
     private readonly passwordHasher: PasswordHasher,
     private readonly tokenService: TokenService,
     private readonly emailPort: EmailPort,
-    private readonly eventPublisher: EventPublisher,
+    private readonly domainEvents: IdentityDomainEventDispatcher,
     private readonly config: ConfigService,
   ) {}
 
@@ -54,6 +52,7 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
     });
 
     await this.identities.save(account);
+    await this.domainEvents.dispatch(account);
 
     const rawVerifyToken = this.tokenService.generateOpaqueToken();
     const tokenHash = this.tokenService.hashOpaqueToken(rawVerifyToken);
@@ -71,15 +70,6 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
       firstName: account.firstName,
       verifyUrl,
     });
-
-    const payload: UserRegisteredEvent = {
-      identityId: account.id.value,
-      email: account.email.value,
-      firstName: account.firstName,
-      lastName: account.lastName,
-      occurredAt: new Date().toISOString(),
-    };
-    await this.eventPublisher.publish(EVENT_NAMES.USER_REGISTERED, payload);
 
     return {
       identityId: account.id.value,

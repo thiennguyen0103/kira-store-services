@@ -8,6 +8,7 @@ import { IdentityId } from '../../../domain/value-objects/identity-id.vo';
 import { RefreshTokenId } from '../../../domain/value-objects/refresh-token-id.vo';
 import { TokenService } from '../../ports/token-service.port';
 import type { AuthTokensResult } from '../../dto/auth-result.dto';
+import { IdentityDomainEventDispatcher } from '../../services/identity-domain-event.dispatcher';
 import { VerifyEmailCommand } from './verify-email.command';
 
 @CommandHandler(VerifyEmailCommand)
@@ -17,6 +18,7 @@ export class VerifyEmailHandler implements ICommandHandler<VerifyEmailCommand> {
     private readonly verificationTokens: VerificationTokenRepository,
     private readonly refreshTokens: RefreshTokenRepository,
     private readonly tokenService: TokenService,
+    private readonly domainEvents: IdentityDomainEventDispatcher,
   ) {}
 
   async execute(command: VerifyEmailCommand): Promise<AuthTokensResult> {
@@ -41,6 +43,7 @@ export class VerifyEmailHandler implements ICommandHandler<VerifyEmailCommand> {
 
     account.verifyEmail();
     await this.identities.save(account);
+    await this.domainEvents.dispatch(account);
     await this.verificationTokens.consumeEmailVerification(record.id);
     await this.verificationTokens.invalidateEmailVerificationsForIdentity(
       account.id.value,
