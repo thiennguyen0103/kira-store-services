@@ -11,6 +11,7 @@ export const EVENT_NAMES = {
   PRODUCT_CREATED: 'product.created',
   PRODUCT_UPDATED: 'product.updated',
   STOCK_RESERVED: 'product.stock_reserved',
+  STOCK_RESERVATION_COMPLETED: 'product.stock_reservation_completed',
   STOCK_RESERVATION_FAILED: 'product.stock_reservation_failed',
   STOCK_RELEASED: 'product.stock_released',
 } as const;

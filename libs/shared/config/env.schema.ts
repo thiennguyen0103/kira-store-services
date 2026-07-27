@@ -82,6 +82,16 @@ export const ordersServiceEnvSchema = Joi.object({
   ...postgresEnvSchema,
   PORT: Joi.number().port().default(3002),
   ORDERS_GRPC_URL: grpcHostPort.required(),
+  PRODUCTS_GRPC_URL: grpcHostPort.required(),
+  USERS_GRPC_URL: grpcHostPort.required(),
+  PAYMENTS_GRPC_URL: grpcHostPort.required(),
+  ORDER_PAYMENT_TIMEOUT_MINUTES: Joi.number().integer().min(1).default(30),
+  CHECKOUT_SUCCESS_URL: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .default('http://localhost:3000/checkout/success'),
+  CHECKOUT_CANCEL_URL: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .default('http://localhost:3000/checkout/cancel'),
 });
 
 export const paymentsServiceEnvSchema = Joi.object({
@@ -89,6 +99,14 @@ export const paymentsServiceEnvSchema = Joi.object({
   ...postgresEnvSchema,
   PORT: Joi.number().port().default(3003),
   PAYMENTS_GRPC_URL: grpcHostPort.required(),
+  STRIPE_SECRET_KEY: Joi.string().allow('').optional(),
+  STRIPE_WEBHOOK_SECRET: Joi.string().allow('').optional(),
+  PAYOS_CLIENT_ID: Joi.string().allow('').optional(),
+  PAYOS_API_KEY: Joi.string().allow('').optional(),
+  PAYOS_CHECKSUM_KEY: Joi.string().allow('').optional(),
+  PAYMENTS_PUBLIC_BASE_URL: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .default('http://localhost:3003'),
 });
 
 export const productsServiceEnvSchema = Joi.object({

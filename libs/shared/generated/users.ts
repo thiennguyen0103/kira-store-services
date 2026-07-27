@@ -22,6 +22,11 @@ export interface GetDefaultAddressRequest {
   userId: string;
 }
 
+export interface GetAddressByIdRequest {
+  userId: string;
+  addressId: string;
+}
+
 export interface GetUserByIdentityIdRequest {
   identityId: string;
 }
@@ -125,6 +130,10 @@ export interface GetDefaultAddressResponse {
   address: AddressResponse | undefined;
 }
 
+export interface GetAddressByIdResponse {
+  address: AddressResponse | undefined;
+}
+
 export interface GetUserByIdentityIdResponse {
   user: UserDetailResponse | undefined;
 }
@@ -155,6 +164,10 @@ export interface UsersServiceClient {
   getDefaultAddress(
     request: GetDefaultAddressRequest,
   ): Observable<GetDefaultAddressResponse>;
+
+  getAddressById(
+    request: GetAddressByIdRequest,
+  ): Observable<GetAddressByIdResponse>;
 
   getUserByIdentityId(
     request: GetUserByIdentityIdRequest,
@@ -198,6 +211,13 @@ export interface UsersServiceController {
     | Promise<GetDefaultAddressResponse>
     | Observable<GetDefaultAddressResponse>
     | GetDefaultAddressResponse;
+
+  getAddressById(
+    request: GetAddressByIdRequest,
+  ):
+    | Promise<GetAddressByIdResponse>
+    | Observable<GetAddressByIdResponse>
+    | GetAddressByIdResponse;
 
   getUserByIdentityId(
     request: GetUserByIdentityIdRequest,
@@ -250,6 +270,7 @@ export function UsersServiceControllerMethods() {
       'getUser',
       'getAddresses',
       'getDefaultAddress',
+      'getAddressById',
       'getUserByIdentityId',
       'searchUsers',
       'updateProfile',

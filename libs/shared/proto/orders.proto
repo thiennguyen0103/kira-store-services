@@ -4,6 +4,20 @@ package orders;
 
 service OrdersService {
   rpc Ping (PingRequest) returns (PingResponse);
+
+  rpc GetCart (GetCartRequest) returns (CartResponse);
+  rpc AddCartItem (AddCartItemRequest) returns (CartResponse);
+  rpc UpdateCartItem (UpdateCartItemRequest) returns (CartResponse);
+  rpc RemoveCartItem (RemoveCartItemRequest) returns (CartResponse);
+  rpc ClearCart (ClearCartRequest) returns (CartResponse);
+
+  rpc Checkout (CheckoutRequest) returns (CheckoutResponse);
+  rpc GetOrder (GetOrderRequest) returns (OrderResponse);
+  rpc ListOrders (ListOrdersRequest) returns (ListOrdersResponse);
+  rpc CancelOrder (CancelOrderRequest) returns (OrderResponse);
+  rpc AdminListOrders (AdminListOrdersRequest) returns (ListOrdersResponse);
+  rpc AdminCancelOrder (AdminCancelOrderRequest) returns (OrderResponse);
+  rpc AdminRefundOrder (AdminRefundOrderRequest) returns (OrderResponse);
 }
 
 message PingRequest {}
@@ -11,4 +25,143 @@ message PingRequest {}
 message PingResponse {
   bool ok = 1;
   string service = 2;
+}
+
+message Money {
+  int64 amount_minor = 1;
+  string currency = 2;
+}
+
+message CartItem {
+  string product_id = 1;
+  string variant_id = 2;
+  string product_name = 3;
+  string sku = 4;
+  int32 quantity = 5;
+  Money unit_price = 6;
+}
+
+message CartResponse {
+  string customer_id = 1;
+  repeated CartItem items = 2;
+  Money total = 3;
+  string updated_at = 4;
+}
+
+message GetCartRequest {
+  string customer_id = 1;
+}
+
+message AddCartItemRequest {
+  string customer_id = 1;
+  string product_id = 2;
+  string variant_id = 3;
+  int32 quantity = 4;
+}
+
+message UpdateCartItemRequest {
+  string customer_id = 1;
+  string product_id = 2;
+  string variant_id = 3;
+  int32 quantity = 4;
+}
+
+message RemoveCartItemRequest {
+  string customer_id = 1;
+  string product_id = 2;
+  string variant_id = 3;
+}
+
+message ClearCartRequest {
+  string customer_id = 1;
+}
+
+message ShippingAddress {
+  string address_id = 1;
+  string receiver_name = 2;
+  string phone_number = 3;
+  string province_code = 4;
+  string district_code = 5;
+  string ward_code = 6;
+  string address_line = 7;
+  string postal_code = 8;
+}
+
+message OrderItem {
+  string product_id = 1;
+  string variant_id = 2;
+  string product_name = 3;
+  string sku = 4;
+  int32 quantity = 5;
+  Money unit_price = 6;
+  Money line_total = 7;
+}
+
+message OrderResponse {
+  string id = 1;
+  string customer_id = 2;
+  string status = 3;
+  repeated OrderItem items = 4;
+  ShippingAddress shipping_address = 5;
+  Money total = 6;
+  string payment_provider = 7;
+  string payment_id = 8;
+  string payment_url = 9;
+  string created_at = 10;
+  string updated_at = 11;
+  string cancelled_at = 12;
+  string confirmed_at = 13;
+}
+
+message CheckoutRequest {
+  string customer_id = 1;
+  string address_id = 2;
+  string payment_provider = 3;
+}
+
+message CheckoutResponse {
+  OrderResponse order = 1;
+  string payment_url = 2;
+  string payment_id = 3;
+}
+
+message GetOrderRequest {
+  string order_id = 1;
+  string customer_id = 2;
+}
+
+message ListOrdersRequest {
+  string customer_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message AdminListOrdersRequest {
+  string status = 1;
+  string customer_id = 2;
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+message ListOrdersResponse {
+  repeated OrderResponse orders = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+message CancelOrderRequest {
+  string order_id = 1;
+  string customer_id = 2;
+  string reason = 3;
+}
+
+message AdminCancelOrderRequest {
+  string order_id = 1;
+  string reason = 2;
+}
+
+message AdminRefundOrderRequest {
+  string order_id = 1;
+  string reason = 2;
 }

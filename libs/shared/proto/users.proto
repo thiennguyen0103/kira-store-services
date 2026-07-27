@@ -12,6 +12,9 @@ service UsersService {
   rpc GetDefaultAddress(GetDefaultAddressRequest)
       returns (GetDefaultAddressResponse);
 
+  rpc GetAddressById(GetAddressByIdRequest)
+      returns (GetAddressByIdResponse);
+
   rpc GetUserByIdentityId(GetUserByIdentityIdRequest)
       returns (GetUserByIdentityIdResponse);
 
@@ -47,6 +50,11 @@ message GetAddressesRequest {
 
 message GetDefaultAddressRequest {
   string userId = 1;
+}
+
+message GetAddressByIdRequest {
+  string userId = 1;
+  string addressId = 2;
 }
 
 message GetUserByIdentityIdRequest {
@@ -149,6 +157,10 @@ message GetAddressesResponse {
 }
 
 message GetDefaultAddressResponse {
+  AddressResponse address = 1;
+}
+
+message GetAddressByIdResponse {
   AddressResponse address = 1;
 }
 

@@ -17,21 +17,255 @@ export interface PingResponse {
   service: string;
 }
 
+export interface Money {
+  amountMinor: number;
+  currency: string;
+}
+
+export interface CartItem {
+  productId: string;
+  variantId: string;
+  productName: string;
+  sku: string;
+  quantity: number;
+  unitPrice: Money | undefined;
+}
+
+export interface CartResponse {
+  customerId: string;
+  items: CartItem[];
+  total: Money | undefined;
+  updatedAt: string;
+}
+
+export interface GetCartRequest {
+  customerId: string;
+}
+
+export interface AddCartItemRequest {
+  customerId: string;
+  productId: string;
+  variantId: string;
+  quantity: number;
+}
+
+export interface UpdateCartItemRequest {
+  customerId: string;
+  productId: string;
+  variantId: string;
+  quantity: number;
+}
+
+export interface RemoveCartItemRequest {
+  customerId: string;
+  productId: string;
+  variantId: string;
+}
+
+export interface ClearCartRequest {
+  customerId: string;
+}
+
+export interface ShippingAddress {
+  addressId: string;
+  receiverName: string;
+  phoneNumber: string;
+  provinceCode: string;
+  districtCode: string;
+  wardCode: string;
+  addressLine: string;
+  postalCode: string;
+}
+
+export interface OrderItem {
+  productId: string;
+  variantId: string;
+  productName: string;
+  sku: string;
+  quantity: number;
+  unitPrice: Money | undefined;
+  lineTotal: Money | undefined;
+}
+
+export interface OrderResponse {
+  id: string;
+  customerId: string;
+  status: string;
+  items: OrderItem[];
+  shippingAddress: ShippingAddress | undefined;
+  total: Money | undefined;
+  paymentProvider: string;
+  paymentId: string;
+  paymentUrl: string;
+  createdAt: string;
+  updatedAt: string;
+  cancelledAt: string;
+  confirmedAt: string;
+}
+
+export interface CheckoutRequest {
+  customerId: string;
+  addressId: string;
+  paymentProvider: string;
+}
+
+export interface CheckoutResponse {
+  order: OrderResponse | undefined;
+  paymentUrl: string;
+  paymentId: string;
+}
+
+export interface GetOrderRequest {
+  orderId: string;
+  customerId: string;
+}
+
+export interface ListOrdersRequest {
+  customerId: string;
+  page: number;
+  limit: number;
+}
+
+export interface AdminListOrdersRequest {
+  status: string;
+  customerId: string;
+  page: number;
+  limit: number;
+}
+
+export interface ListOrdersResponse {
+  orders: OrderResponse[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface CancelOrderRequest {
+  orderId: string;
+  customerId: string;
+  reason: string;
+}
+
+export interface AdminCancelOrderRequest {
+  orderId: string;
+  reason: string;
+}
+
+export interface AdminRefundOrderRequest {
+  orderId: string;
+  reason: string;
+}
+
 export const ORDERS_PACKAGE_NAME = 'orders';
 
 export interface OrdersServiceClient {
   ping(request: PingRequest): Observable<PingResponse>;
+
+  getCart(request: GetCartRequest): Observable<CartResponse>;
+
+  addCartItem(request: AddCartItemRequest): Observable<CartResponse>;
+
+  updateCartItem(request: UpdateCartItemRequest): Observable<CartResponse>;
+
+  removeCartItem(request: RemoveCartItemRequest): Observable<CartResponse>;
+
+  clearCart(request: ClearCartRequest): Observable<CartResponse>;
+
+  checkout(request: CheckoutRequest): Observable<CheckoutResponse>;
+
+  getOrder(request: GetOrderRequest): Observable<OrderResponse>;
+
+  listOrders(request: ListOrdersRequest): Observable<ListOrdersResponse>;
+
+  cancelOrder(request: CancelOrderRequest): Observable<OrderResponse>;
+
+  adminListOrders(
+    request: AdminListOrdersRequest,
+  ): Observable<ListOrdersResponse>;
+
+  adminCancelOrder(request: AdminCancelOrderRequest): Observable<OrderResponse>;
+
+  adminRefundOrder(request: AdminRefundOrderRequest): Observable<OrderResponse>;
 }
 
 export interface OrdersServiceController {
   ping(
     request: PingRequest,
   ): Promise<PingResponse> | Observable<PingResponse> | PingResponse;
+
+  getCart(
+    request: GetCartRequest,
+  ): Promise<CartResponse> | Observable<CartResponse> | CartResponse;
+
+  addCartItem(
+    request: AddCartItemRequest,
+  ): Promise<CartResponse> | Observable<CartResponse> | CartResponse;
+
+  updateCartItem(
+    request: UpdateCartItemRequest,
+  ): Promise<CartResponse> | Observable<CartResponse> | CartResponse;
+
+  removeCartItem(
+    request: RemoveCartItemRequest,
+  ): Promise<CartResponse> | Observable<CartResponse> | CartResponse;
+
+  clearCart(
+    request: ClearCartRequest,
+  ): Promise<CartResponse> | Observable<CartResponse> | CartResponse;
+
+  checkout(
+    request: CheckoutRequest,
+  ):
+    Promise<CheckoutResponse> | Observable<CheckoutResponse> | CheckoutResponse;
+
+  getOrder(
+    request: GetOrderRequest,
+  ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
+
+  listOrders(
+    request: ListOrdersRequest,
+  ):
+    | Promise<ListOrdersResponse>
+    | Observable<ListOrdersResponse>
+    | ListOrdersResponse;
+
+  cancelOrder(
+    request: CancelOrderRequest,
+  ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
+
+  adminListOrders(
+    request: AdminListOrdersRequest,
+  ):
+    | Promise<ListOrdersResponse>
+    | Observable<ListOrdersResponse>
+    | ListOrdersResponse;
+
+  adminCancelOrder(
+    request: AdminCancelOrderRequest,
+  ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
+
+  adminRefundOrder(
+    request: AdminRefundOrderRequest,
+  ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
 }
 
 export function OrdersServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['ping'];
+    const grpcMethods: string[] = [
+      'ping',
+      'getCart',
+      'addCartItem',
+      'updateCartItem',
+      'removeCartItem',
+      'clearCart',
+      'checkout',
+      'getOrder',
+      'listOrders',
+      'cancelOrder',
+      'adminListOrders',
+      'adminCancelOrder',
+      'adminRefundOrder',
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(
         constructor.prototype,

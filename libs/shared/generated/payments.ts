@@ -17,21 +17,93 @@ export interface PingResponse {
   service: string;
 }
 
+export interface CreatePaymentIntentRequest {
+  orderId: string;
+  amountMinor: number;
+  currency: string;
+  provider: string;
+  customerId: string;
+  description: string;
+  successUrl: string;
+  cancelUrl: string;
+}
+
+export interface GetPaymentRequest {
+  paymentId: string;
+}
+
+export interface GetPaymentByOrderIdRequest {
+  orderId: string;
+}
+
+export interface RefundPaymentRequest {
+  paymentId: string;
+  orderId: string;
+  reason: string;
+}
+
+export interface PaymentResponse {
+  id: string;
+  orderId: string;
+  status: string;
+  provider: string;
+  providerPaymentId: string;
+  amountMinor: number;
+  currency: string;
+  checkoutUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const PAYMENTS_PACKAGE_NAME = 'payments';
 
 export interface PaymentsServiceClient {
   ping(request: PingRequest): Observable<PingResponse>;
+
+  createPaymentIntent(
+    request: CreatePaymentIntentRequest,
+  ): Observable<PaymentResponse>;
+
+  getPayment(request: GetPaymentRequest): Observable<PaymentResponse>;
+
+  getPaymentByOrderId(
+    request: GetPaymentByOrderIdRequest,
+  ): Observable<PaymentResponse>;
+
+  refundPayment(request: RefundPaymentRequest): Observable<PaymentResponse>;
 }
 
 export interface PaymentsServiceController {
   ping(
     request: PingRequest,
   ): Promise<PingResponse> | Observable<PingResponse> | PingResponse;
+
+  createPaymentIntent(
+    request: CreatePaymentIntentRequest,
+  ): Promise<PaymentResponse> | Observable<PaymentResponse> | PaymentResponse;
+
+  getPayment(
+    request: GetPaymentRequest,
+  ): Promise<PaymentResponse> | Observable<PaymentResponse> | PaymentResponse;
+
+  getPaymentByOrderId(
+    request: GetPaymentByOrderIdRequest,
+  ): Promise<PaymentResponse> | Observable<PaymentResponse> | PaymentResponse;
+
+  refundPayment(
+    request: RefundPaymentRequest,
+  ): Promise<PaymentResponse> | Observable<PaymentResponse> | PaymentResponse;
 }
 
 export function PaymentsServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['ping'];
+    const grpcMethods: string[] = [
+      'ping',
+      'createPaymentIntent',
+      'getPayment',
+      'getPaymentByOrderId',
+      'refundPayment',
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(
         constructor.prototype,

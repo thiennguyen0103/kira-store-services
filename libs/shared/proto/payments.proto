@@ -4,6 +4,11 @@ package payments;
 
 service PaymentsService {
   rpc Ping (PingRequest) returns (PingResponse);
+
+  rpc CreatePaymentIntent (CreatePaymentIntentRequest) returns (PaymentResponse);
+  rpc GetPayment (GetPaymentRequest) returns (PaymentResponse);
+  rpc GetPaymentByOrderId (GetPaymentByOrderIdRequest) returns (PaymentResponse);
+  rpc RefundPayment (RefundPaymentRequest) returns (PaymentResponse);
 }
 
 message PingRequest {}
@@ -11,4 +16,42 @@ message PingRequest {}
 message PingResponse {
   bool ok = 1;
   string service = 2;
+}
+
+message CreatePaymentIntentRequest {
+  string order_id = 1;
+  int64 amount_minor = 2;
+  string currency = 3;
+  string provider = 4;
+  string customer_id = 5;
+  string description = 6;
+  string success_url = 7;
+  string cancel_url = 8;
+}
+
+message GetPaymentRequest {
+  string payment_id = 1;
+}
+
+message GetPaymentByOrderIdRequest {
+  string order_id = 1;
+}
+
+message RefundPaymentRequest {
+  string payment_id = 1;
+  string order_id = 2;
+  string reason = 3;
+}
+
+message PaymentResponse {
+  string id = 1;
+  string order_id = 2;
+  string status = 3;
+  string provider = 4;
+  string provider_payment_id = 5;
+  int64 amount_minor = 6;
+  string currency = 7;
+  string checkout_url = 8;
+  string created_at = 9;
+  string updated_at = 10;
 }
