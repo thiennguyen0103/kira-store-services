@@ -1,4 +1,11 @@
-import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Param,
+  Post,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -8,6 +15,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { firstValueFrom } from 'rxjs';
+import { UserRole } from 'libs/shared/enums/user-role.enum';
 import type {
   DeleteAssetResponse,
   PresignUploadResponse,
@@ -34,6 +42,13 @@ export class UploadsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: PresignUploadDto,
   ): Promise<PresignUploadResponse> {
+    if (
+      body.purpose === 'product-image' &&
+      (user.role as UserRole) !== UserRole.ADMIN
+    ) {
+      throw new ForbiddenException('Only admins can upload product images');
+    }
+
     return callGrpc(() =>
       firstValueFrom(
         this.mediaClient.presignUpload({

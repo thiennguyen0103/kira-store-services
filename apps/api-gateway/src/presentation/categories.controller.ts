@@ -1,15 +1,11 @@
 import {
-  Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
-  Patch,
-  Post,
   Query,
 } from '@nestjs/common';
 import {
-  ApiBearerAuth,
-  ApiBody,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -21,44 +17,26 @@ import type {
   ListCategoriesResponse,
 } from 'libs/shared/generated/products';
 import { ProductsClientPort } from '../application/ports/products-client.port';
-import { CreateCategoryDto } from './dto/products/create-category.dto';
-import { ListQueryDto } from './dto/products/list-query.dto';
-import { SetActiveDto } from './dto/products/set-active.dto';
-import { UpdateCategoryDto } from './dto/products/update-category.dto';
+import { Public } from './decorators/public.decorator';
+import { PublicListQueryDto } from './dto/products/public-list-query.dto';
 import { callGrpc } from './helpers/call-grpc.helper';
 
 @ApiTags('categories')
-@ApiBearerAuth('access-token')
+@Public()
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly productsClient: ProductsClientPort) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Create a category' })
-  @ApiBody({ type: CreateCategoryDto })
-  @ApiOkResponse({ description: 'Created category' })
-  create(@Body() body: CreateCategoryDto): Promise<CategoryResponse> {
-    return callGrpc(() =>
-      firstValueFrom(
-        this.productsClient.createCategory({
-          name: body.name,
-          slug: body.slug,
-          parentId: body.parentId ?? '',
-        }),
-      ),
-    );
-  }
-
   @Get()
-  @ApiOperation({ summary: 'List categories' })
-  @ApiOkResponse({ description: 'Paged list of categories' })
-  list(@Query() query: ListQueryDto): Promise<ListCategoriesResponse> {
+  @ApiOperation({ summary: 'List active categories' })
+  @ApiOkResponse({ description: 'Paged list of active categories' })
+  list(@Query() query: PublicListQueryDto): Promise<ListCategoriesResponse> {
     return callGrpc(() =>
       firstValueFrom(
         this.productsClient.listCategories({
           page: query.page ?? 1,
           limit: query.limit ?? 20,
-          activeOnly: query.activeOnly ?? false,
+          activeOnly: true,
           parentId: '',
         }),
       ),
@@ -66,72 +44,38 @@ export class CategoriesController {
   }
 
   @Get(':id/children')
-  @ApiOperation({ summary: 'Get child categories' })
+  @ApiOperation({ summary: 'Get active child categories' })
   @ApiParam({
     name: 'id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'Child categories' })
-  getChildren(@Param('id') id: string): Promise<ListCategoriesResponse> {
-    return callGrpc(() =>
+  @ApiOkResponse({ description: 'Active child categories' })
+  async getChildren(@Param('id') id: string): Promise<ListCategoriesResponse> {
+    const response = await callGrpc(() =>
       firstValueFrom(this.productsClient.getCategoryChildren({ parentId: id })),
     );
+    const items = (response.items ?? []).filter((item) => item.isActive);
+    return {
+      ...response,
+      items,
+      total: items.length,
+    };
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get category by id' })
+  @ApiOperation({ summary: 'Get active category by id' })
   @ApiParam({
     name: 'id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
   @ApiOkResponse({ description: 'Category detail' })
-  getById(@Param('id') id: string): Promise<CategoryResponse> {
-    return callGrpc(() =>
+  async getById(@Param('id') id: string): Promise<CategoryResponse> {
+    const category = await callGrpc(() =>
       firstValueFrom(this.productsClient.getCategory({ categoryId: id })),
     );
-  }
-
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update a category' })
-  @ApiParam({
-    name: 'id',
-    example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-  })
-  @ApiBody({ type: UpdateCategoryDto })
-  @ApiOkResponse({ description: 'Updated category' })
-  update(
-    @Param('id') id: string,
-    @Body() body: UpdateCategoryDto,
-  ): Promise<CategoryResponse> {
-    return callGrpc(() =>
-      firstValueFrom(
-        this.productsClient.updateCategory({
-          categoryId: id,
-          name: body.name,
-        }),
-      ),
-    );
-  }
-
-  @Post(':id/active')
-  @ApiOperation({ summary: 'Set category active status' })
-  @ApiParam({
-    name: 'id',
-    example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-  })
-  @ApiBody({ type: SetActiveDto })
-  @ApiOkResponse({ description: 'Updated category' })
-  setActive(
-    @Param('id') id: string,
-    @Body() body: SetActiveDto,
-  ): Promise<CategoryResponse> {
-    return callGrpc(() =>
-      firstValueFrom(
-        this.productsClient.setCategoryActive({
-          categoryId: id,
-          isActive: body.isActive,
-        }),
-      ),
-    );
+    if (!category.isActive) {
+      throw new NotFoundException(`Category not found: ${id}`);
+    }
+    return category;
   }
 }

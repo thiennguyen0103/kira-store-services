@@ -19,10 +19,14 @@ import { OrdersClient } from './infrastructure/client/orders.client';
 import { PaymentsClient } from './infrastructure/client/payments.client';
 import { ProductsClient } from './infrastructure/client/products.client';
 import { UsersClient } from './infrastructure/client/users.client';
+import { AdminBrandsController } from './presentation/admin/admin-brands.controller';
+import { AdminCategoriesController } from './presentation/admin/admin-categories.controller';
+import { AdminProductsController } from './presentation/admin/admin-products.controller';
 import { AuthController } from './presentation/auth.controller';
 import { BrandsController } from './presentation/brands.controller';
 import { CategoriesController } from './presentation/categories.controller';
 import { AuthGuard } from './presentation/guards/auth.guard';
+import { RolesGuard } from './presentation/guards/roles.guard';
 import { ProductsController } from './presentation/products.controller';
 import { UploadsController } from './presentation/uploads.controller';
 import { UsersController } from './presentation/users.controller';
@@ -65,6 +69,9 @@ import { UsersController } from './presentation/users.controller';
     ProductsController,
     BrandsController,
     CategoriesController,
+    AdminProductsController,
+    AdminBrandsController,
+    AdminCategoriesController,
     UploadsController,
   ],
   providers: [
@@ -76,6 +83,7 @@ import { UsersController } from './presentation/users.controller';
     { provide: MediaClientPort, useClass: MediaClient },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: AuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
   ],
   exports: [
     UsersClientPort,
