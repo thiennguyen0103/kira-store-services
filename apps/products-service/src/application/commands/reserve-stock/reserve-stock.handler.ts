@@ -6,8 +6,8 @@ import { ProductId } from 'apps/products-service/src/domain/value-objects/produc
 import { VariantId } from 'apps/products-service/src/domain/value-objects/product/variant-id.vo';
 import { EVENT_NAMES } from 'libs/shared/constants';
 import type {
+  StockReservationCompletedEvent,
   StockReservationFailedEvent,
-  StockReservedEvent,
 } from 'libs/shared/events';
 import { EventPublisher } from 'libs/shared/interfaces';
 import {
@@ -38,15 +38,22 @@ export class ReserveStockHandler implements ICommandHandler<ReserveStockCommand>
         product.reserveStock(VariantId.restore(item.variantId), item.quantity);
         await this.products.save(product);
         reserved.push(item);
+      }
 
-        const event: StockReservedEvent = {
+      if (command.orderId) {
+        const completed: StockReservationCompletedEvent = {
           orderId: command.orderId,
-          productId: item.productId,
-          variantId: item.variantId,
-          quantity: item.quantity,
+          items: reserved.map((item) => ({
+            productId: item.productId,
+            variantId: item.variantId,
+            quantity: item.quantity,
+          })),
           occurredAt: new Date().toISOString(),
         };
-        await this.eventPublisher.publish(EVENT_NAMES.STOCK_RESERVED, event);
+        await this.eventPublisher.publish(
+          EVENT_NAMES.STOCK_RESERVATION_COMPLETED,
+          completed,
+        );
       }
 
       return new StockMutationResult(
