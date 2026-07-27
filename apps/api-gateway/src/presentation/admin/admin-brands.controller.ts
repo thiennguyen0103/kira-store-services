@@ -25,6 +25,10 @@ import { ProductsClientPort } from '../../application/ports/products-client.port
 import { Roles } from '../decorators/roles.decorator';
 import { CreateBrandDto } from '../dto/products/create-brand.dto';
 import { ListQueryDto } from '../dto/products/list-query.dto';
+import {
+  BrandResponseDto,
+  ListBrandsResponseDto,
+} from '../dto/products/product-response.dto';
 import { SetActiveDto } from '../dto/products/set-active.dto';
 import { UpdateBrandDto } from '../dto/products/update-brand.dto';
 import { callGrpc } from '../helpers/call-grpc.helper';
@@ -39,7 +43,7 @@ export class AdminBrandsController {
   @Post()
   @ApiOperation({ summary: 'Create a brand' })
   @ApiBody({ type: CreateBrandDto })
-  @ApiOkResponse({ description: 'Created brand' })
+  @ApiOkResponse({ type: BrandResponseDto, description: 'Created brand' })
   create(@Body() body: CreateBrandDto): Promise<BrandResponse> {
     return callGrpc(() =>
       firstValueFrom(
@@ -54,7 +58,10 @@ export class AdminBrandsController {
 
   @Get()
   @ApiOperation({ summary: 'List brands' })
-  @ApiOkResponse({ description: 'Paged list of brands' })
+  @ApiOkResponse({
+    type: ListBrandsResponseDto,
+    description: 'Paged list of brands',
+  })
   list(@Query() query: ListQueryDto): Promise<ListBrandsResponse> {
     return callGrpc(() =>
       firstValueFrom(
@@ -73,7 +80,7 @@ export class AdminBrandsController {
     name: 'id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'Brand detail' })
+  @ApiOkResponse({ type: BrandResponseDto, description: 'Brand detail' })
   getById(@Param('id') id: string): Promise<BrandResponse> {
     return callGrpc(() =>
       firstValueFrom(this.productsClient.getBrand({ brandId: id })),
@@ -87,7 +94,7 @@ export class AdminBrandsController {
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
   @ApiBody({ type: UpdateBrandDto })
-  @ApiOkResponse({ description: 'Updated brand' })
+  @ApiOkResponse({ type: BrandResponseDto, description: 'Updated brand' })
   update(
     @Param('id') id: string,
     @Body() body: UpdateBrandDto,
@@ -111,7 +118,7 @@ export class AdminBrandsController {
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
   @ApiBody({ type: SetActiveDto })
-  @ApiOkResponse({ description: 'Updated brand' })
+  @ApiOkResponse({ type: BrandResponseDto, description: 'Updated brand' })
   setActive(
     @Param('id') id: string,
     @Body() body: SetActiveDto,

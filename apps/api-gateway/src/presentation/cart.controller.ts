@@ -23,6 +23,7 @@ import { OrdersClientPort } from '../application/ports/orders-client.port';
 import { UsersClientPort } from '../application/ports/users-client.port';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { AddCartItemDto } from './dto/orders/add-cart-item.dto';
+import { CartResponseDto } from './dto/orders/order-response.dto';
 import { UpdateCartItemDto } from './dto/orders/update-cart-item.dto';
 import type { AuthenticatedUser } from './guards/auth.guard';
 import { callGrpc } from './helpers/call-grpc.helper';
@@ -38,7 +39,7 @@ export class CartController {
 
   @Get()
   @ApiOperation({ summary: 'Get the authenticated customer cart' })
-  @ApiOkResponse({ description: 'Current cart' })
+  @ApiOkResponse({ type: CartResponseDto, description: 'Current cart' })
   async getCart(@CurrentUser() user: AuthenticatedUser): Promise<CartResponse> {
     const customerId = await this.resolveCustomerId(user.identityId);
     return callGrpc(() =>
@@ -49,7 +50,7 @@ export class CartController {
   @Post('items')
   @ApiOperation({ summary: 'Add an item to the cart' })
   @ApiBody({ type: AddCartItemDto })
-  @ApiOkResponse({ description: 'Updated cart' })
+  @ApiOkResponse({ type: CartResponseDto, description: 'Updated cart' })
   async addItem(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: AddCartItemDto,
@@ -70,7 +71,7 @@ export class CartController {
   @Patch('items')
   @ApiOperation({ summary: 'Update a cart item quantity' })
   @ApiBody({ type: UpdateCartItemDto })
-  @ApiOkResponse({ description: 'Updated cart' })
+  @ApiOkResponse({ type: CartResponseDto, description: 'Updated cart' })
   async updateItem(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: UpdateCartItemDto,
@@ -92,7 +93,7 @@ export class CartController {
   @ApiOperation({ summary: 'Remove an item from the cart' })
   @ApiParam({ name: 'productId', description: 'Product id' })
   @ApiParam({ name: 'variantId', description: 'Variant id' })
-  @ApiOkResponse({ description: 'Updated cart' })
+  @ApiOkResponse({ type: CartResponseDto, description: 'Updated cart' })
   async removeItem(
     @CurrentUser() user: AuthenticatedUser,
     @Param('productId') productId: string,
@@ -112,7 +113,7 @@ export class CartController {
 
   @Delete()
   @ApiOperation({ summary: 'Clear the authenticated customer cart' })
-  @ApiOkResponse({ description: 'Empty cart' })
+  @ApiOkResponse({ type: CartResponseDto, description: 'Empty cart' })
   async clearCart(
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<CartResponse> {

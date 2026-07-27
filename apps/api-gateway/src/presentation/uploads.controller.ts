@@ -24,6 +24,10 @@ import { MediaClientPort } from '../application/ports/media-client.port';
 import { CurrentUser } from './decorators/current-user.decorator';
 import type { AuthenticatedUser } from './guards/auth.guard';
 import { PresignUploadDto } from './dto/uploads/presign-upload.dto';
+import {
+  DeleteAssetResponseDto,
+  PresignUploadResponseDto,
+} from './dto/uploads/upload-response.dto';
 import { callGrpc } from './helpers/call-grpc.helper';
 
 @ApiTags('uploads')
@@ -37,7 +41,10 @@ export class UploadsController {
     summary: 'Get a presigned URL to upload a file directly to object storage',
   })
   @ApiBody({ type: PresignUploadDto })
-  @ApiOkResponse({ description: 'Presigned upload details' })
+  @ApiOkResponse({
+    type: PresignUploadResponseDto,
+    description: 'Presigned upload details',
+  })
   presign(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: PresignUploadDto,
@@ -65,7 +72,7 @@ export class UploadsController {
   @Delete(':assetId')
   @ApiOperation({ summary: 'Delete an uploaded media asset' })
   @ApiParam({ name: 'assetId', description: 'Media asset id' })
-  @ApiOkResponse({ description: 'Delete result' })
+  @ApiOkResponse({ type: DeleteAssetResponseDto, description: 'Delete result' })
   remove(
     @CurrentUser() user: AuthenticatedUser,
     @Param('assetId') assetId: string,

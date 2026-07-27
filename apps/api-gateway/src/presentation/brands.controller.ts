@@ -18,6 +18,10 @@ import type {
 } from 'libs/shared/generated/products';
 import { ProductsClientPort } from '../application/ports/products-client.port';
 import { Public } from './decorators/public.decorator';
+import {
+  BrandResponseDto,
+  ListBrandsResponseDto,
+} from './dto/products/product-response.dto';
 import { PublicListQueryDto } from './dto/products/public-list-query.dto';
 import { callGrpc } from './helpers/call-grpc.helper';
 
@@ -29,7 +33,10 @@ export class BrandsController {
 
   @Get()
   @ApiOperation({ summary: 'List active brands' })
-  @ApiOkResponse({ description: 'Paged list of active brands' })
+  @ApiOkResponse({
+    type: ListBrandsResponseDto,
+    description: 'Paged list of active brands',
+  })
   list(@Query() query: PublicListQueryDto): Promise<ListBrandsResponse> {
     return callGrpc(() =>
       firstValueFrom(
@@ -48,7 +55,7 @@ export class BrandsController {
     name: 'id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'Brand detail' })
+  @ApiOkResponse({ type: BrandResponseDto, description: 'Brand detail' })
   async getById(@Param('id') id: string): Promise<BrandResponse> {
     const brand = await callGrpc(() =>
       firstValueFrom(this.productsClient.getBrand({ brandId: id })),

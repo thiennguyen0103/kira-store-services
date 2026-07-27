@@ -28,6 +28,11 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { CancelOrderDto } from './dto/orders/cancel-order.dto';
 import { CheckoutDto } from './dto/orders/checkout.dto';
 import { ListOrdersQueryDto } from './dto/orders/list-orders-query.dto';
+import {
+  CheckoutResponseDto,
+  ListOrdersResponseDto,
+  OrderResponseDto,
+} from './dto/orders/order-response.dto';
 import type { AuthenticatedUser } from './guards/auth.guard';
 import { callGrpc } from './helpers/call-grpc.helper';
 
@@ -43,7 +48,10 @@ export class OrdersController {
   @Post('checkout')
   @ApiOperation({ summary: 'Checkout the cart and create an order' })
   @ApiBody({ type: CheckoutDto })
-  @ApiOkResponse({ description: 'Checkout result with payment details' })
+  @ApiOkResponse({
+    type: CheckoutResponseDto,
+    description: 'Checkout result with payment details',
+  })
   async checkout(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CheckoutDto,
@@ -62,7 +70,10 @@ export class OrdersController {
 
   @Get('orders')
   @ApiOperation({ summary: 'List orders for the authenticated customer' })
-  @ApiOkResponse({ description: 'Paged list of orders' })
+  @ApiOkResponse({
+    type: ListOrdersResponseDto,
+    description: 'Paged list of orders',
+  })
   async listOrders(
     @CurrentUser() user: AuthenticatedUser,
     @Query() query: ListOrdersQueryDto,
@@ -84,7 +95,7 @@ export class OrdersController {
     summary: 'Get an order by id for the authenticated customer',
   })
   @ApiParam({ name: 'id', description: 'Order id' })
-  @ApiOkResponse({ description: 'Order detail' })
+  @ApiOkResponse({ type: OrderResponseDto, description: 'Order detail' })
   async getOrder(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
@@ -99,7 +110,7 @@ export class OrdersController {
   @ApiOperation({ summary: 'Cancel an order for the authenticated customer' })
   @ApiParam({ name: 'id', description: 'Order id' })
   @ApiBody({ type: CancelOrderDto })
-  @ApiOkResponse({ description: 'Cancelled order' })
+  @ApiOkResponse({ type: OrderResponseDto, description: 'Cancelled order' })
   async cancelOrder(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,

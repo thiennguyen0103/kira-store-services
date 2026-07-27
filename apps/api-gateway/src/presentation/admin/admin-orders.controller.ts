@@ -17,6 +17,10 @@ import { OrdersClientPort } from '../../application/ports/orders-client.port';
 import { Roles } from '../decorators/roles.decorator';
 import { CancelOrderDto } from '../dto/orders/cancel-order.dto';
 import { AdminListOrdersQueryDto } from '../dto/orders/list-orders-query.dto';
+import {
+  ListOrdersResponseDto,
+  OrderResponseDto,
+} from '../dto/orders/order-response.dto';
 import { callGrpc } from '../helpers/call-grpc.helper';
 
 @ApiTags('admin-orders')
@@ -28,7 +32,10 @@ export class AdminOrdersController {
 
   @Get()
   @ApiOperation({ summary: 'List all orders (admin)' })
-  @ApiOkResponse({ description: 'Paged list of orders' })
+  @ApiOkResponse({
+    type: ListOrdersResponseDto,
+    description: 'Paged list of orders',
+  })
   list(@Query() query: AdminListOrdersQueryDto): Promise<ListOrdersResponse> {
     return callGrpc(() =>
       firstValueFrom(
@@ -46,7 +53,7 @@ export class AdminOrdersController {
   @ApiOperation({ summary: 'Cancel an order (admin)' })
   @ApiParam({ name: 'id', description: 'Order id' })
   @ApiBody({ type: CancelOrderDto })
-  @ApiOkResponse({ description: 'Cancelled order' })
+  @ApiOkResponse({ type: OrderResponseDto, description: 'Cancelled order' })
   cancel(
     @Param('id') id: string,
     @Body() body: CancelOrderDto,
@@ -65,7 +72,7 @@ export class AdminOrdersController {
   @ApiOperation({ summary: 'Refund an order (admin)' })
   @ApiParam({ name: 'id', description: 'Order id' })
   @ApiBody({ type: CancelOrderDto })
-  @ApiOkResponse({ description: 'Refunded order' })
+  @ApiOkResponse({ type: OrderResponseDto, description: 'Refunded order' })
   refund(
     @Param('id') id: string,
     @Body() body: CancelOrderDto,

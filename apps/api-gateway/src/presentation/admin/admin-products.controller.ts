@@ -34,6 +34,11 @@ import {
   ReleaseStockDto,
   ReserveStockDto,
 } from '../dto/products/reserve-stock.dto';
+import {
+  ListProductsResponseDto,
+  ProductResponseDto,
+  StockMutationResponseDto,
+} from '../dto/products/product-response.dto';
 import { SetImagesDto } from '../dto/products/set-images.dto';
 import { UpdateProductDto } from '../dto/products/update-product.dto';
 import { UpdateVariantDto } from '../dto/products/update-variant.dto';
@@ -49,7 +54,10 @@ export class AdminProductsController {
   @Post()
   @ApiOperation({ summary: 'Create a product' })
   @ApiBody({ type: CreateProductDto })
-  @ApiOkResponse({ description: 'Created product detail' })
+  @ApiOkResponse({
+    type: ProductResponseDto,
+    description: 'Created product detail',
+  })
   create(@Body() body: CreateProductDto): Promise<ProductResponse> {
     return callGrpc(() =>
       firstValueFrom(
@@ -83,7 +91,10 @@ export class AdminProductsController {
 
   @Get()
   @ApiOperation({ summary: 'List products (any status)' })
-  @ApiOkResponse({ description: 'Paged list of products' })
+  @ApiOkResponse({
+    type: ListProductsResponseDto,
+    description: 'Paged list of products',
+  })
   list(@Query() query: ListProductsQueryDto): Promise<ListProductsResponse> {
     return callGrpc(() =>
       firstValueFrom(
@@ -102,7 +113,7 @@ export class AdminProductsController {
   @Get('slug/:slug')
   @ApiOperation({ summary: 'Get product by slug' })
   @ApiParam({ name: 'slug', example: 'classic-t-shirt' })
-  @ApiOkResponse({ description: 'Product detail' })
+  @ApiOkResponse({ type: ProductResponseDto, description: 'Product detail' })
   getBySlug(@Param('slug') slug: string): Promise<ProductResponse> {
     return callGrpc(() =>
       firstValueFrom(this.productsClient.getProductBySlug({ slug })),
@@ -112,7 +123,10 @@ export class AdminProductsController {
   @Post('stock/reserve')
   @ApiOperation({ summary: 'Reserve stock for an order' })
   @ApiBody({ type: ReserveStockDto })
-  @ApiOkResponse({ description: 'Stock reservation result' })
+  @ApiOkResponse({
+    type: StockMutationResponseDto,
+    description: 'Stock reservation result',
+  })
   reserveStock(@Body() body: ReserveStockDto): Promise<StockMutationResponse> {
     return callGrpc(() =>
       firstValueFrom(
@@ -131,7 +145,10 @@ export class AdminProductsController {
   @Post('stock/release')
   @ApiOperation({ summary: 'Release reserved stock for an order' })
   @ApiBody({ type: ReleaseStockDto })
-  @ApiOkResponse({ description: 'Stock release result' })
+  @ApiOkResponse({
+    type: StockMutationResponseDto,
+    description: 'Stock release result',
+  })
   releaseStock(@Body() body: ReleaseStockDto): Promise<StockMutationResponse> {
     return callGrpc(() =>
       firstValueFrom(
@@ -153,7 +170,7 @@ export class AdminProductsController {
     name: 'id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'Product detail' })
+  @ApiOkResponse({ type: ProductResponseDto, description: 'Product detail' })
   getById(@Param('id') id: string): Promise<ProductResponse> {
     return callGrpc(() =>
       firstValueFrom(this.productsClient.getProduct({ productId: id })),
@@ -167,7 +184,10 @@ export class AdminProductsController {
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
   @ApiBody({ type: UpdateProductDto })
-  @ApiOkResponse({ description: 'Updated product detail' })
+  @ApiOkResponse({
+    type: ProductResponseDto,
+    description: 'Updated product detail',
+  })
   update(
     @Param('id') id: string,
     @Body() body: UpdateProductDto,
@@ -194,7 +214,10 @@ export class AdminProductsController {
     name: 'id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'Published product detail' })
+  @ApiOkResponse({
+    type: ProductResponseDto,
+    description: 'Published product detail',
+  })
   publish(@Param('id') id: string): Promise<ProductResponse> {
     return callGrpc(() =>
       firstValueFrom(this.productsClient.publishProduct({ productId: id })),
@@ -207,7 +230,10 @@ export class AdminProductsController {
     name: 'id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'Archived product detail' })
+  @ApiOkResponse({
+    type: ProductResponseDto,
+    description: 'Archived product detail',
+  })
   archive(@Param('id') id: string): Promise<ProductResponse> {
     return callGrpc(() =>
       firstValueFrom(this.productsClient.archiveProduct({ productId: id })),
@@ -221,7 +247,10 @@ export class AdminProductsController {
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
   @ApiBody({ type: AddVariantDto })
-  @ApiOkResponse({ description: 'Updated product detail' })
+  @ApiOkResponse({
+    type: ProductResponseDto,
+    description: 'Updated product detail',
+  })
   addVariant(
     @Param('id') id: string,
     @Body() body: AddVariantDto,
@@ -257,7 +286,10 @@ export class AdminProductsController {
     example: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
   })
   @ApiBody({ type: UpdateVariantDto })
-  @ApiOkResponse({ description: 'Updated product detail' })
+  @ApiOkResponse({
+    type: ProductResponseDto,
+    description: 'Updated product detail',
+  })
   updateVariant(
     @Param('id') id: string,
     @Param('variantId') variantId: string,
@@ -296,7 +328,10 @@ export class AdminProductsController {
     name: 'variantId',
     example: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
   })
-  @ApiOkResponse({ description: 'Updated product detail' })
+  @ApiOkResponse({
+    type: ProductResponseDto,
+    description: 'Updated product detail',
+  })
   removeVariant(
     @Param('id') id: string,
     @Param('variantId') variantId: string,
@@ -315,7 +350,10 @@ export class AdminProductsController {
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
   @ApiBody({ type: SetImagesDto })
-  @ApiOkResponse({ description: 'Updated product detail' })
+  @ApiOkResponse({
+    type: ProductResponseDto,
+    description: 'Updated product detail',
+  })
   setImages(
     @Param('id') id: string,
     @Body() body: SetImagesDto,
@@ -346,7 +384,10 @@ export class AdminProductsController {
     example: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
   })
   @ApiBody({ type: AdjustStockDto })
-  @ApiOkResponse({ description: 'Updated product detail' })
+  @ApiOkResponse({
+    type: ProductResponseDto,
+    description: 'Updated product detail',
+  })
   adjustStock(
     @Param('id') id: string,
     @Param('variantId') variantId: string,

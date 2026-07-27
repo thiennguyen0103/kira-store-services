@@ -25,6 +25,10 @@ import { ProductsClientPort } from '../../application/ports/products-client.port
 import { Roles } from '../decorators/roles.decorator';
 import { CreateCategoryDto } from '../dto/products/create-category.dto';
 import { ListQueryDto } from '../dto/products/list-query.dto';
+import {
+  CategoryResponseDto,
+  ListCategoriesResponseDto,
+} from '../dto/products/product-response.dto';
 import { SetActiveDto } from '../dto/products/set-active.dto';
 import { UpdateCategoryDto } from '../dto/products/update-category.dto';
 import { callGrpc } from '../helpers/call-grpc.helper';
@@ -39,7 +43,7 @@ export class AdminCategoriesController {
   @Post()
   @ApiOperation({ summary: 'Create a category' })
   @ApiBody({ type: CreateCategoryDto })
-  @ApiOkResponse({ description: 'Created category' })
+  @ApiOkResponse({ type: CategoryResponseDto, description: 'Created category' })
   create(@Body() body: CreateCategoryDto): Promise<CategoryResponse> {
     return callGrpc(() =>
       firstValueFrom(
@@ -54,7 +58,10 @@ export class AdminCategoriesController {
 
   @Get()
   @ApiOperation({ summary: 'List categories' })
-  @ApiOkResponse({ description: 'Paged list of categories' })
+  @ApiOkResponse({
+    type: ListCategoriesResponseDto,
+    description: 'Paged list of categories',
+  })
   list(@Query() query: ListQueryDto): Promise<ListCategoriesResponse> {
     return callGrpc(() =>
       firstValueFrom(
@@ -74,7 +81,10 @@ export class AdminCategoriesController {
     name: 'id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'Child categories' })
+  @ApiOkResponse({
+    type: ListCategoriesResponseDto,
+    description: 'Child categories',
+  })
   getChildren(@Param('id') id: string): Promise<ListCategoriesResponse> {
     return callGrpc(() =>
       firstValueFrom(this.productsClient.getCategoryChildren({ parentId: id })),
@@ -87,7 +97,7 @@ export class AdminCategoriesController {
     name: 'id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'Category detail' })
+  @ApiOkResponse({ type: CategoryResponseDto, description: 'Category detail' })
   getById(@Param('id') id: string): Promise<CategoryResponse> {
     return callGrpc(() =>
       firstValueFrom(this.productsClient.getCategory({ categoryId: id })),
@@ -101,7 +111,7 @@ export class AdminCategoriesController {
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
   @ApiBody({ type: UpdateCategoryDto })
-  @ApiOkResponse({ description: 'Updated category' })
+  @ApiOkResponse({ type: CategoryResponseDto, description: 'Updated category' })
   update(
     @Param('id') id: string,
     @Body() body: UpdateCategoryDto,
@@ -123,7 +133,7 @@ export class AdminCategoriesController {
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
   @ApiBody({ type: SetActiveDto })
-  @ApiOkResponse({ description: 'Updated category' })
+  @ApiOkResponse({ type: CategoryResponseDto, description: 'Updated category' })
   setActive(
     @Param('id') id: string,
     @Body() body: SetActiveDto,

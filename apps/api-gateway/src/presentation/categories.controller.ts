@@ -18,6 +18,10 @@ import type {
 } from 'libs/shared/generated/products';
 import { ProductsClientPort } from '../application/ports/products-client.port';
 import { Public } from './decorators/public.decorator';
+import {
+  CategoryResponseDto,
+  ListCategoriesResponseDto,
+} from './dto/products/product-response.dto';
 import { PublicListQueryDto } from './dto/products/public-list-query.dto';
 import { callGrpc } from './helpers/call-grpc.helper';
 
@@ -29,7 +33,10 @@ export class CategoriesController {
 
   @Get()
   @ApiOperation({ summary: 'List active categories' })
-  @ApiOkResponse({ description: 'Paged list of active categories' })
+  @ApiOkResponse({
+    type: ListCategoriesResponseDto,
+    description: 'Paged list of active categories',
+  })
   list(@Query() query: PublicListQueryDto): Promise<ListCategoriesResponse> {
     return callGrpc(() =>
       firstValueFrom(
@@ -49,7 +56,10 @@ export class CategoriesController {
     name: 'id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'Active child categories' })
+  @ApiOkResponse({
+    type: ListCategoriesResponseDto,
+    description: 'Active child categories',
+  })
   async getChildren(@Param('id') id: string): Promise<ListCategoriesResponse> {
     const response = await callGrpc(() =>
       firstValueFrom(this.productsClient.getCategoryChildren({ parentId: id })),
@@ -68,7 +78,7 @@ export class CategoriesController {
     name: 'id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'Category detail' })
+  @ApiOkResponse({ type: CategoryResponseDto, description: 'Category detail' })
   async getById(@Param('id') id: string): Promise<CategoryResponse> {
     const category = await callGrpc(() =>
       firstValueFrom(this.productsClient.getCategory({ categoryId: id })),

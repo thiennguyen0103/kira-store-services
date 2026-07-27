@@ -32,6 +32,14 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import type { AuthenticatedUser } from './guards/auth.guard';
 import { SearchUsersQueryDto } from './dto/search-users-query.dto';
 import {
+  GetAddressesResponseDto,
+  GetDefaultAddressResponseDto,
+  GetUserByIdentityIdResponseDto,
+  MutationResponseDto,
+  SearchUsersResponseDto,
+  UserDetailResponseDto,
+} from './dto/users/user-response.dto';
+import {
   UpdateAvatarDto,
   UpdateProfileDto,
   UpsertAddressDto,
@@ -46,7 +54,10 @@ export class UsersController {
 
   @Get('me')
   @ApiOperation({ summary: 'Get the authenticated user profile' })
-  @ApiOkResponse({ description: 'Current user detail' })
+  @ApiOkResponse({
+    type: UserDetailResponseDto,
+    description: 'Current user detail',
+  })
   async getMe(
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<UserDetailResponse> {
@@ -56,7 +67,7 @@ export class UsersController {
   @Patch('me/profile')
   @ApiOperation({ summary: 'Update the authenticated user profile' })
   @ApiBody({ type: UpdateProfileDto })
-  @ApiOkResponse({ description: 'Profile updated' })
+  @ApiOkResponse({ type: MutationResponseDto, description: 'Profile updated' })
   async updateMyProfile(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: UpdateProfileDto,
@@ -79,7 +90,7 @@ export class UsersController {
   @Put('me/avatar')
   @ApiOperation({ summary: 'Update the authenticated user avatar' })
   @ApiBody({ type: UpdateAvatarDto })
-  @ApiOkResponse({ description: 'Avatar updated' })
+  @ApiOkResponse({ type: MutationResponseDto, description: 'Avatar updated' })
   async updateMyAvatar(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: UpdateAvatarDto,
@@ -97,7 +108,10 @@ export class UsersController {
 
   @Get('me/addresses')
   @ApiOperation({ summary: 'List addresses for the authenticated user' })
-  @ApiOkResponse({ description: 'List of addresses' })
+  @ApiOkResponse({
+    type: GetAddressesResponseDto,
+    description: 'List of addresses',
+  })
   async getMyAddresses(
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<GetAddressesResponse> {
@@ -109,7 +123,10 @@ export class UsersController {
 
   @Get('me/default-address')
   @ApiOperation({ summary: 'Get default address for the authenticated user' })
-  @ApiOkResponse({ description: 'Default address' })
+  @ApiOkResponse({
+    type: GetDefaultAddressResponseDto,
+    description: 'Default address',
+  })
   async getMyDefaultAddress(
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<GetDefaultAddressResponse> {
@@ -124,7 +141,7 @@ export class UsersController {
   @Post('me/addresses')
   @ApiOperation({ summary: 'Add an address for the authenticated user' })
   @ApiBody({ type: UpsertAddressDto })
-  @ApiOkResponse({ description: 'Address added' })
+  @ApiOkResponse({ type: MutationResponseDto, description: 'Address added' })
   async addMyAddress(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: UpsertAddressDto,
@@ -154,7 +171,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Update an address for the authenticated user' })
   @ApiParam({ name: 'addressId', description: 'Address id' })
   @ApiBody({ type: UpsertAddressDto })
-  @ApiOkResponse({ description: 'Address updated' })
+  @ApiOkResponse({ type: MutationResponseDto, description: 'Address updated' })
   async updateMyAddress(
     @CurrentUser() user: AuthenticatedUser,
     @Param('addressId') addressId: string,
@@ -184,7 +201,7 @@ export class UsersController {
   @Delete('me/addresses/:addressId')
   @ApiOperation({ summary: 'Remove an address for the authenticated user' })
   @ApiParam({ name: 'addressId', description: 'Address id' })
-  @ApiOkResponse({ description: 'Address removed' })
+  @ApiOkResponse({ type: MutationResponseDto, description: 'Address removed' })
   async removeMyAddress(
     @CurrentUser() user: AuthenticatedUser,
     @Param('addressId') addressId: string,
@@ -203,7 +220,10 @@ export class UsersController {
   @Put('me/addresses/:addressId/default')
   @ApiOperation({ summary: 'Set default address for the authenticated user' })
   @ApiParam({ name: 'addressId', description: 'Address id' })
-  @ApiOkResponse({ description: 'Default address updated' })
+  @ApiOkResponse({
+    type: MutationResponseDto,
+    description: 'Default address updated',
+  })
   async setMyDefaultAddress(
     @CurrentUser() user: AuthenticatedUser,
     @Param('addressId') addressId: string,
@@ -221,7 +241,10 @@ export class UsersController {
 
   @Get('search')
   @ApiOperation({ summary: 'Search users' })
-  @ApiOkResponse({ description: 'Paged list of matching users' })
+  @ApiOkResponse({
+    type: SearchUsersResponseDto,
+    description: 'Paged list of matching users',
+  })
   searchUsers(
     @Query() query: SearchUsersQueryDto,
   ): Promise<SearchUsersResponse> {
@@ -243,7 +266,10 @@ export class UsersController {
     description: 'Identity account id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'User linked to the identity id' })
+  @ApiOkResponse({
+    type: GetUserByIdentityIdResponseDto,
+    description: 'User linked to the identity id',
+  })
   getUserByIdentityId(
     @Param('identityId') identityId: string,
   ): Promise<GetUserByIdentityIdResponse> {
@@ -259,7 +285,7 @@ export class UsersController {
     description: 'User id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'User detail' })
+  @ApiOkResponse({ type: UserDetailResponseDto, description: 'User detail' })
   getUser(@Param('id') id: string): Promise<UserDetailResponse> {
     return callGrpc(() =>
       firstValueFrom(this.usersClient.getUser({ userId: id })),
@@ -273,7 +299,10 @@ export class UsersController {
     description: 'User id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'List of user addresses' })
+  @ApiOkResponse({
+    type: GetAddressesResponseDto,
+    description: 'List of user addresses',
+  })
   getAddresses(@Param('id') id: string): Promise<GetAddressesResponse> {
     return callGrpc(() =>
       firstValueFrom(this.usersClient.getAddresses({ userId: id })),
@@ -287,7 +316,10 @@ export class UsersController {
     description: 'User id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'Default address for the user' })
+  @ApiOkResponse({
+    type: GetDefaultAddressResponseDto,
+    description: 'Default address for the user',
+  })
   getDefaultAddress(
     @Param('id') id: string,
   ): Promise<GetDefaultAddressResponse> {

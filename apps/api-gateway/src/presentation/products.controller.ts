@@ -19,6 +19,10 @@ import type {
 import { ProductsClientPort } from '../application/ports/products-client.port';
 import { Public } from './decorators/public.decorator';
 import { PublicListProductsQueryDto } from './dto/products/public-list-products-query.dto';
+import {
+  ListProductsResponseDto,
+  ProductResponseDto,
+} from './dto/products/product-response.dto';
 import { callGrpc } from './helpers/call-grpc.helper';
 
 @ApiTags('products')
@@ -29,7 +33,10 @@ export class ProductsController {
 
   @Get()
   @ApiOperation({ summary: 'List active products' })
-  @ApiOkResponse({ description: 'Paged list of active products' })
+  @ApiOkResponse({
+    type: ListProductsResponseDto,
+    description: 'Paged list of active products',
+  })
   list(
     @Query() query: PublicListProductsQueryDto,
   ): Promise<ListProductsResponse> {
@@ -50,7 +57,7 @@ export class ProductsController {
   @Get('slug/:slug')
   @ApiOperation({ summary: 'Get active product by slug' })
   @ApiParam({ name: 'slug', example: 'classic-t-shirt' })
-  @ApiOkResponse({ description: 'Product detail' })
+  @ApiOkResponse({ type: ProductResponseDto, description: 'Product detail' })
   async getBySlug(@Param('slug') slug: string): Promise<ProductResponse> {
     const product = await callGrpc(() =>
       firstValueFrom(this.productsClient.getProductBySlug({ slug })),
@@ -67,7 +74,7 @@ export class ProductsController {
     name: 'id',
     example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   })
-  @ApiOkResponse({ description: 'Product detail' })
+  @ApiOkResponse({ type: ProductResponseDto, description: 'Product detail' })
   async getById(@Param('id') id: string): Promise<ProductResponse> {
     const product = await callGrpc(() =>
       firstValueFrom(this.productsClient.getProduct({ productId: id })),
