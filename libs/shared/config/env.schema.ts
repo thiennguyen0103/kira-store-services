@@ -129,6 +129,11 @@ export const identityServiceEnvSchema = Joi.object({
   APP_PUBLIC_URL: Joi.string()
     .uri({ scheme: ['http', 'https'] })
     .default('http://localhost:3000'),
+  /** When both email and password are set, identity-service seeds an ACTIVE admin on boot. */
+  SEED_ADMIN_EMAIL: Joi.string().email().allow('').optional(),
+  SEED_ADMIN_PASSWORD: Joi.string().min(8).max(128).allow('').optional(),
+  SEED_ADMIN_FIRST_NAME: Joi.string().trim().min(1).max(100).default('Admin'),
+  SEED_ADMIN_LAST_NAME: Joi.string().trim().min(1).max(100).default('User'),
 });
 
 export const mediaServiceEnvSchema = Joi.object({

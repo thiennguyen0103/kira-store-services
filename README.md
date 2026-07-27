@@ -68,6 +68,7 @@ pnpm docker:dev
 | RabbitMQ UI   | http://localhost:15672 (`guest` / `guest`)          |
 | Grafana       | http://localhost:3200                               |
 | MinIO Console | http://localhost:9001 (`minioadmin` / `minioadmin`) |
+| Seeded admin  | `admin@kira.store` / `Admin123!` (dev only)         |
 
 Useful commands:
 
@@ -174,6 +175,19 @@ Git hooks (Lefthook) install on `pnpm install` via `prepare`. Commits follow [Co
 - `apps/*/.env.example` — per-service Nest configuration (gRPC URLs, DB, secrets)
 
 Do not commit `.env` files or real payment/API secrets.
+
+### Admin seed (identity-service)
+
+On startup, identity-service creates an **ACTIVE `ADMIN`** account when both `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` are set (skipped if the email already exists). The `user.registered` event also creates a matching profile in users-service.
+
+| Variable                | Purpose                                       |
+| ----------------------- | --------------------------------------------- |
+| `SEED_ADMIN_EMAIL`      | Admin login email (required to seed)          |
+| `SEED_ADMIN_PASSWORD`   | Plain password (letter + number, 8–128 chars) |
+| `SEED_ADMIN_FIRST_NAME` | Defaults to `Admin`                           |
+| `SEED_ADMIN_LAST_NAME`  | Defaults to `User`                            |
+
+Leave the email/password unset in production unless you intentionally want a bootstrap admin.
 
 ## License
 

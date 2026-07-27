@@ -44,6 +44,7 @@ import { TypeOrmRefreshTokenRepository } from './infrastructure/persistence/repo
 import { TypeOrmVerificationTokenRepository } from './infrastructure/persistence/repositories/typeorm-verification-token.repository';
 import { Argon2PasswordHasher } from './infrastructure/security/argon2-password-hasher';
 import { JwtTokenService } from './infrastructure/security/jwt-token.service';
+import { AdminSeedService } from './infrastructure/seed/admin-seed.service';
 import { IdentityGrpcController } from './presentation/identity.grpc.controller';
 
 @Module({
@@ -101,6 +102,7 @@ import { IdentityGrpcController } from './presentation/identity.grpc.controller'
     { provide: TokenService, useClass: JwtTokenService },
     { provide: EmailPort, useClass: IdentityEmailAdapter },
     { provide: EventPublisher, useClass: RmqEventPublisher },
+    AdminSeedService,
   ],
 })
 export class IdentityServiceModule {}
