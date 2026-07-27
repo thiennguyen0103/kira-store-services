@@ -83,8 +83,8 @@ pnpm dev:apps            # all 7 Nest services on the host
 Use when you want everything containerized (slower file watching on Windows):
 
 ```bash
-pnpm docker:dev          # start (reuses shared image)
-pnpm docker:dev:build    # rebuild image after Dockerfile / lockfile changes
+pnpm docker:dev          # start (builds shared image once via identity-service)
+pnpm docker:dev:build    # force rebuild shared image (no cache), then up
 ```
 
 ```bash
@@ -94,7 +94,7 @@ pnpm docker:dev:down     # stop stack
 pnpm docker:dev:reset    # stop + wipe volumes
 ```
 
-All Nest services share one image (`kira-nest-dev:latest`). Rebuild only when dependencies or `Dockerfile.dev` change.
+All Nest services share one image (`kira-nest-dev:latest`), built only by `identity-service` so Compose does not race tagging the same image. Use `docker:dev:build` after `Dockerfile.dev` / lockfile changes.
 
 ### Env setup (once)
 
@@ -138,19 +138,19 @@ docker-compose.dev.yml  # Nest apps overlay
 
 ## Scripts
 
-| Script                  | Description                                             |
-| ----------------------- | ------------------------------------------------------- |
-| `pnpm build`            | Build Nest projects                                     |
-| `pnpm start:dev`        | Start default app (api-gateway) in watch mode           |
-| `pnpm lint`             | Oxlint (type-aware) + Prettier check                    |
-| `pnpm format`           | Prettier write                                          |
-| `pnpm test`             | Unit tests (Jest)                                       |
-| `pnpm test:cov`         | Coverage                                                |
-| `pnpm generate:proto`   | Regenerate TypeScript from `.proto` files               |
-| `pnpm docker:up`        | Infra only (Postgres, RabbitMQ, MinIO, Loki, Grafana)   |
-| `pnpm dev` / `dev:apps` | Recommended: infra + host Nest apps with watch          |
-| `pnpm docker:dev`       | Full stack in Docker (reuses image; no rebuild)         |
-| `pnpm docker:dev:build` | Rebuild shared Nest image, then start full Docker stack |
+| Script                  | Description                                           |
+| ----------------------- | ----------------------------------------------------- |
+| `pnpm build`            | Build Nest projects                                   |
+| `pnpm start:dev`        | Start default app (api-gateway) in watch mode         |
+| `pnpm lint`             | Oxlint (type-aware) + Prettier check                  |
+| `pnpm format`           | Prettier write                                        |
+| `pnpm test`             | Unit tests (Jest)                                     |
+| `pnpm test:cov`         | Coverage                                              |
+| `pnpm generate:proto`   | Regenerate TypeScript from `.proto` files             |
+| `pnpm docker:up`        | Infra only (Postgres, RabbitMQ, MinIO, Loki, Grafana) |
+| `pnpm dev` / `dev:apps` | Recommended: infra + host Nest apps with watch        |
+| `pnpm docker:dev`       | Full stack in Docker (one shared image build)         |
+| `pnpm docker:dev:build` | Force rebuild shared Nest image (no cache), then up   |
 
 After changing files under `libs/shared/proto/`, regenerate clients:
 

@@ -1,18 +1,19 @@
 # Development overlay — Nest microservices with hot reload.
 # Merges with the infra stack in docker-compose.yml.
 #
-#   pnpm docker:dev          # infra + apps (cached image)
-#   pnpm docker:dev:build    # rebuild shared image, then up
+#   pnpm docker:dev          # infra + apps (builds shared image once if needed)
+#   pnpm docker:dev:build    # force rebuild shared image, then up
 #   pnpm docker:dev:down
 #   docker compose up -d     # infra only
 #
 # Prefer hybrid on Windows: pnpm docker:up && pnpm dev:apps
+#
+# Only identity-service declares `build:` so Compose does not race exporting
+# the same kira-nest-dev:latest tag from 7 parallel builders.
 
 x-nest-service: &nest-service
-  build:
-    context: .
-    dockerfile: Dockerfile.dev
   image: kira-nest-dev:latest
+  pull_policy: never
   restart: unless-stopped
   working_dir: /app
   volumes:
@@ -39,6 +40,10 @@ x-nest-service: &nest-service
 services:
   identity-service:
     <<: *nest-service
+    # Single build owner for the shared Nest image.
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     container_name: kira-identity-service
     command: pnpm exec nest start identity-service --watch
     ports:
