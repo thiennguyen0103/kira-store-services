@@ -9,6 +9,8 @@ import type {
   AddAddressRequest,
   GetAddressesRequest,
   GetAddressesResponse,
+  GetAddressByIdRequest,
+  GetAddressByIdResponse,
   GetDefaultAddressRequest,
   GetDefaultAddressResponse,
   GetUserByIdentityIdRequest,
@@ -35,6 +37,7 @@ import { SearchUsersDto } from '../../application/dto/search-users.dto';
 import { UserDetailDto } from '../../application/dto/user-detail.dto';
 import { UserListItemDto } from '../../application/dto/user-list-item.dto';
 import { GetAddressesQuery } from '../../application/queries/get-addresses/get-addresses.query';
+import { GetAddressByIdQuery } from '../../application/queries/get-address-by-id/get-address-by-id.query';
 import { GetDefaultAddressQuery } from '../../application/queries/get-default-addresses/get-default-address.query';
 import { GetUserByIdentityIdQuery } from '../../application/queries/get-user-by-identity-id/get-user-by-identity-id.query';
 import { GetUserQuery } from '../../application/queries/get-user/get-user.query';
@@ -84,6 +87,20 @@ export class UserGrpcController {
         GetDefaultAddressQuery,
         AddressDto
       >(new GetDefaultAddressQuery(request.userId));
+      return {
+        address: AddressResponseMapper.toResponse(dto),
+      };
+    });
+  }
+
+  @GrpcMethod(GRPC_SERVICE_NAMES.USERS, 'GetAddressById')
+  async getAddressById(
+    request: GetAddressByIdRequest,
+  ): Promise<GetAddressByIdResponse> {
+    return this.execute(async () => {
+      const dto = await this.queryBus.execute<GetAddressByIdQuery, AddressDto>(
+        new GetAddressByIdQuery(request.userId, request.addressId),
+      );
       return {
         address: AddressResponseMapper.toResponse(dto),
       };

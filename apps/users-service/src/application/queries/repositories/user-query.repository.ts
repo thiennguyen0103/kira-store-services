@@ -27,6 +27,14 @@ export abstract class UserQueryRepository {
   abstract findAddresses(id: string): Promise<AddressDto[]>;
 
   /**
+   * Get a single address by id for a user.
+   */
+  abstract findAddressById(
+    userId: string,
+    addressId: string,
+  ): Promise<AddressDto | null>;
+
+  /**
    * Get default address.
    */
   abstract findDefaultAddress(id: string): Promise<AddressDto | null>;

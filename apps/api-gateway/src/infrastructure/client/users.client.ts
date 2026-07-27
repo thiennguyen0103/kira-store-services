@@ -6,6 +6,8 @@ import type {
   AddAddressRequest,
   GetAddressesRequest,
   GetAddressesResponse,
+  GetAddressByIdRequest,
+  GetAddressByIdResponse,
   GetDefaultAddressRequest,
   GetDefaultAddressResponse,
   GetUserByIdentityIdRequest,
@@ -53,6 +55,12 @@ export class UsersClient extends UsersClientPort implements OnModuleInit {
     request: GetDefaultAddressRequest,
   ): Observable<GetDefaultAddressResponse> {
     return this.usersService.getDefaultAddress(request);
+  }
+
+  getAddressById(
+    request: GetAddressByIdRequest,
+  ): Observable<GetAddressByIdResponse> {
+    return this.usersService.getAddressById(request);
   }
 
   getUserByIdentityId(

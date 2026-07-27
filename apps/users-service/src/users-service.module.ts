@@ -23,6 +23,7 @@ import { UserOrmEntity } from './infrastructure/persistence/entities/user.entity
 import { UserGrpcController } from './presentation/grpc/users.grpc.controller';
 import { UsersHttpController } from './presentation/users.http.controller';
 import { GetAddressesHandler } from './application/queries/get-addresses/get-addresses.handler';
+import { GetAddressByIdHandler } from './application/queries/get-address-by-id/get-address-by-id.handler';
 import { GetDefaultAddressHandler } from './application/queries/get-default-addresses/get-default.address.handler';
 import { GetUserByIdentityIdHandler } from './application/queries/get-user-by-identity-id/get-user-by-identity-id.handler';
 import { SearchUsersHandler } from './application/queries/search-users/search-users.handler';
@@ -56,6 +57,7 @@ import { UserRegisteredConsumer } from './infrastructure/messaging/user-register
     UpdateAvatarHandler,
     GetUserHandler,
     GetAddressesHandler,
+    GetAddressByIdHandler,
     GetDefaultAddressHandler,
     GetUserByIdentityIdHandler,
     SearchUsersHandler,

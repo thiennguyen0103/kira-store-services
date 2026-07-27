@@ -3,6 +3,8 @@ import type {
   AddAddressRequest,
   GetAddressesRequest,
   GetAddressesResponse,
+  GetAddressByIdRequest,
+  GetAddressByIdResponse,
   GetDefaultAddressRequest,
   GetDefaultAddressResponse,
   GetUserByIdentityIdRequest,
@@ -29,6 +31,10 @@ export abstract class UsersClientPort {
   abstract getDefaultAddress(
     request: GetDefaultAddressRequest,
   ): Observable<GetDefaultAddressResponse>;
+
+  abstract getAddressById(
+    request: GetAddressByIdRequest,
+  ): Observable<GetAddressByIdResponse>;
 
   abstract getUserByIdentityId(
     request: GetUserByIdentityIdRequest,

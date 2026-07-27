@@ -92,6 +92,33 @@ export class TypeOrmUserQueryRepository extends UserQueryRepository {
     );
   }
 
+  async findAddressById(
+    userId: string,
+    addressId: string,
+  ): Promise<AddressDto | null> {
+    if (!isUuid(userId) || !isUuid(addressId)) {
+      return null;
+    }
+
+    const user = await this.users.findOne({
+      where: { id: userId },
+      relations: { addresses: true },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    const address = (user.addresses ?? []).find(
+      (item) => item.id === addressId,
+    );
+    if (!address) {
+      return null;
+    }
+
+    return this.mapper.toAddressDto(address);
+  }
+
   async findDefaultAddress(id: string): Promise<AddressDto | null> {
     if (!isUuid(id)) {
       return null;
