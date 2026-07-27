@@ -13,12 +13,18 @@ import { AddressOrmEntity } from './address.entity';
 @Index('idx_users_identity_id', ['identityId'], {
   unique: true,
 })
+@Index('idx_users_email', ['email'], {
+  unique: true,
+})
 export class UserOrmEntity {
   @PrimaryColumn('uuid')
   id!: string;
 
   @Column({ name: 'identity_id', type: 'uuid', unique: true })
   identityId!: string;
+
+  @Column({ name: 'email', type: 'varchar', length: 320 })
+  email!: string;
 
   @Column({ name: 'full_name', type: 'varchar', length: 255 })
   fullName!: string;

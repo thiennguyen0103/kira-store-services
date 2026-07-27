@@ -1,5 +1,18 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -10,16 +23,201 @@ import type {
   GetAddressesResponse,
   GetDefaultAddressResponse,
   GetUserByIdentityIdResponse,
+  MutationResponse,
   SearchUsersResponse,
   UserDetailResponse,
 } from 'libs/shared/generated/users';
 import { UsersClientPort } from '../application/ports/users-client.port';
+import { CurrentUser } from './decorators/current-user.decorator';
+import type { AuthenticatedUser } from './guards/auth.guard';
 import { SearchUsersQueryDto } from './dto/search-users-query.dto';
+import {
+  UpdateAvatarDto,
+  UpdateProfileDto,
+  UpsertAddressDto,
+} from './dto/users-write.dto';
+import { callGrpc } from './helpers/call-grpc.helper';
 
 @ApiTags('users')
+@ApiBearerAuth('access-token')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersClient: UsersClientPort) {}
+
+  @Get('me')
+  @ApiOperation({ summary: 'Get the authenticated user profile' })
+  @ApiOkResponse({ description: 'Current user detail' })
+  async getMe(
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<UserDetailResponse> {
+    return this.resolveCurrentUser(user.identityId);
+  }
+
+  @Patch('me/profile')
+  @ApiOperation({ summary: 'Update the authenticated user profile' })
+  @ApiBody({ type: UpdateProfileDto })
+  @ApiOkResponse({ description: 'Profile updated' })
+  async updateMyProfile(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: UpdateProfileDto,
+  ): Promise<MutationResponse> {
+    const profile = await this.resolveCurrentUser(user.identityId);
+    return callGrpc(() =>
+      firstValueFrom(
+        this.usersClient.updateProfile({
+          userId: profile.id,
+          firstName: body.firstName,
+          lastName: body.lastName,
+          phoneNumber: body.phoneNumber ?? '',
+          gender: body.gender ?? '',
+          birthday: body.birthday ?? '',
+        }),
+      ),
+    );
+  }
+
+  @Put('me/avatar')
+  @ApiOperation({ summary: 'Update the authenticated user avatar' })
+  @ApiBody({ type: UpdateAvatarDto })
+  @ApiOkResponse({ description: 'Avatar updated' })
+  async updateMyAvatar(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: UpdateAvatarDto,
+  ): Promise<MutationResponse> {
+    const profile = await this.resolveCurrentUser(user.identityId);
+    return callGrpc(() =>
+      firstValueFrom(
+        this.usersClient.updateAvatar({
+          userId: profile.id,
+          avatarUrl: body.avatarUrl,
+        }),
+      ),
+    );
+  }
+
+  @Get('me/addresses')
+  @ApiOperation({ summary: 'List addresses for the authenticated user' })
+  @ApiOkResponse({ description: 'List of addresses' })
+  async getMyAddresses(
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<GetAddressesResponse> {
+    const profile = await this.resolveCurrentUser(user.identityId);
+    return callGrpc(() =>
+      firstValueFrom(this.usersClient.getAddresses({ userId: profile.id })),
+    );
+  }
+
+  @Get('me/default-address')
+  @ApiOperation({ summary: 'Get default address for the authenticated user' })
+  @ApiOkResponse({ description: 'Default address' })
+  async getMyDefaultAddress(
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<GetDefaultAddressResponse> {
+    const profile = await this.resolveCurrentUser(user.identityId);
+    return callGrpc(() =>
+      firstValueFrom(
+        this.usersClient.getDefaultAddress({ userId: profile.id }),
+      ),
+    );
+  }
+
+  @Post('me/addresses')
+  @ApiOperation({ summary: 'Add an address for the authenticated user' })
+  @ApiBody({ type: UpsertAddressDto })
+  @ApiOkResponse({ description: 'Address added' })
+  async addMyAddress(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: UpsertAddressDto,
+  ): Promise<MutationResponse> {
+    const profile = await this.resolveCurrentUser(user.identityId);
+    return callGrpc(() =>
+      firstValueFrom(
+        this.usersClient.addAddress({
+          userId: profile.id,
+          firstName: body.firstName,
+          lastName: body.lastName,
+          phoneNumber: body.phoneNumber,
+          provinceCode: body.provinceCode,
+          districtCode: body.districtCode,
+          districtName: body.districtName ?? '',
+          wardCode: body.wardCode,
+          addressLine: body.addressLine,
+          postalCode: body.postalCode ?? '',
+          label: body.label,
+          isDefault: body.isDefault ?? false,
+        }),
+      ),
+    );
+  }
+
+  @Put('me/addresses/:addressId')
+  @ApiOperation({ summary: 'Update an address for the authenticated user' })
+  @ApiParam({ name: 'addressId', description: 'Address id' })
+  @ApiBody({ type: UpsertAddressDto })
+  @ApiOkResponse({ description: 'Address updated' })
+  async updateMyAddress(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('addressId') addressId: string,
+    @Body() body: UpsertAddressDto,
+  ): Promise<MutationResponse> {
+    const profile = await this.resolveCurrentUser(user.identityId);
+    return callGrpc(() =>
+      firstValueFrom(
+        this.usersClient.updateAddress({
+          userId: profile.id,
+          addressId,
+          firstName: body.firstName,
+          lastName: body.lastName,
+          phoneNumber: body.phoneNumber,
+          provinceCode: body.provinceCode,
+          districtCode: body.districtCode,
+          districtName: body.districtName ?? '',
+          wardCode: body.wardCode,
+          addressLine: body.addressLine,
+          postalCode: body.postalCode ?? '',
+          label: body.label,
+        }),
+      ),
+    );
+  }
+
+  @Delete('me/addresses/:addressId')
+  @ApiOperation({ summary: 'Remove an address for the authenticated user' })
+  @ApiParam({ name: 'addressId', description: 'Address id' })
+  @ApiOkResponse({ description: 'Address removed' })
+  async removeMyAddress(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('addressId') addressId: string,
+  ): Promise<MutationResponse> {
+    const profile = await this.resolveCurrentUser(user.identityId);
+    return callGrpc(() =>
+      firstValueFrom(
+        this.usersClient.removeAddress({
+          userId: profile.id,
+          addressId,
+        }),
+      ),
+    );
+  }
+
+  @Put('me/addresses/:addressId/default')
+  @ApiOperation({ summary: 'Set default address for the authenticated user' })
+  @ApiParam({ name: 'addressId', description: 'Address id' })
+  @ApiOkResponse({ description: 'Default address updated' })
+  async setMyDefaultAddress(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('addressId') addressId: string,
+  ): Promise<MutationResponse> {
+    const profile = await this.resolveCurrentUser(user.identityId);
+    return callGrpc(() =>
+      firstValueFrom(
+        this.usersClient.setDefaultAddress({
+          userId: profile.id,
+          addressId,
+        }),
+      ),
+    );
+  }
 
   @Get('search')
   @ApiOperation({ summary: 'Search users' })
@@ -27,12 +225,14 @@ export class UsersController {
   searchUsers(
     @Query() query: SearchUsersQueryDto,
   ): Promise<SearchUsersResponse> {
-    return firstValueFrom(
-      this.usersClient.searchUsers({
-        query: query.query ?? '',
-        page: query.page ?? 1,
-        limit: query.limit ?? 20,
-      }),
+    return callGrpc(() =>
+      firstValueFrom(
+        this.usersClient.searchUsers({
+          query: query.query ?? '',
+          page: query.page ?? 1,
+          limit: query.limit ?? 20,
+        }),
+      ),
     );
   }
 
@@ -47,7 +247,9 @@ export class UsersController {
   getUserByIdentityId(
     @Param('identityId') identityId: string,
   ): Promise<GetUserByIdentityIdResponse> {
-    return firstValueFrom(this.usersClient.getUserByIdentityId({ identityId }));
+    return callGrpc(() =>
+      firstValueFrom(this.usersClient.getUserByIdentityId({ identityId })),
+    );
   }
 
   @Get(':id')
@@ -59,7 +261,9 @@ export class UsersController {
   })
   @ApiOkResponse({ description: 'User detail' })
   getUser(@Param('id') id: string): Promise<UserDetailResponse> {
-    return firstValueFrom(this.usersClient.getUser({ userId: id }));
+    return callGrpc(() =>
+      firstValueFrom(this.usersClient.getUser({ userId: id })),
+    );
   }
 
   @Get(':id/addresses')
@@ -71,7 +275,9 @@ export class UsersController {
   })
   @ApiOkResponse({ description: 'List of user addresses' })
   getAddresses(@Param('id') id: string): Promise<GetAddressesResponse> {
-    return firstValueFrom(this.usersClient.getAddresses({ userId: id }));
+    return callGrpc(() =>
+      firstValueFrom(this.usersClient.getAddresses({ userId: id })),
+    );
   }
 
   @Get(':id/default-address')
@@ -85,6 +291,20 @@ export class UsersController {
   getDefaultAddress(
     @Param('id') id: string,
   ): Promise<GetDefaultAddressResponse> {
-    return firstValueFrom(this.usersClient.getDefaultAddress({ userId: id }));
+    return callGrpc(() =>
+      firstValueFrom(this.usersClient.getDefaultAddress({ userId: id })),
+    );
+  }
+
+  private async resolveCurrentUser(
+    identityId: string,
+  ): Promise<UserDetailResponse> {
+    const result = await callGrpc(() =>
+      firstValueFrom(this.usersClient.getUserByIdentityId({ identityId })),
+    );
+    if (!result.user) {
+      throw new NotFoundException('User profile not found for this account');
+    }
+    return result.user;
   }
 }

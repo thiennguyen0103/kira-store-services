@@ -5,6 +5,7 @@ export class UserDetailDto {
     public readonly id: string,
     public readonly identityId: string,
     public readonly fullName: string,
+    public readonly email: string,
     public readonly avatarUrl: string | null,
     public readonly phoneNumber: string | null,
     public readonly gender: string | null,

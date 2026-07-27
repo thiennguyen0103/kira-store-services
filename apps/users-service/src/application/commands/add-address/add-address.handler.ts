@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Address } from 'apps/users-service/src/domain/entities/address.entity';
-import { EAddressLabel } from 'apps/users-service/src/domain/enums/address-label.enum';
+import { parseAddressLabel } from 'apps/users-service/src/domain/enums/parse-address-label';
 import { UserNotFoundException } from 'apps/users-service/src/domain/exceptions/user-not-found.exception';
 import { UserRepository } from 'apps/users-service/src/domain/repositories/user.repository';
 import { AddressId } from 'apps/users-service/src/domain/value-objects/address/address-id.vo';
@@ -25,6 +25,8 @@ export class AddAddressHandler implements ICommandHandler<AddAddressCommand> {
       throw new UserNotFoundException(command.userId);
     }
 
+    const districtName = command.districtName.trim() || command.districtCode;
+
     user.addAddress(
       Address.create(AddressId.create(), {
         receiverName: PersonName.create({
@@ -35,17 +37,14 @@ export class AddAddressHandler implements ICommandHandler<AddAddressCommand> {
         province: Province.create(command.provinceCode),
         district: District.create({
           code: command.districtCode,
-          name: command.districtName,
+          name: districtName,
         }),
         ward: Ward.create(command.wardCode),
         addressLine: AddressLine.create(command.addressLine),
         postalCode: command.postalCode
           ? PostalCode.create(command.postalCode)
           : undefined,
-        label:
-          EAddressLabel[
-            command.label.toUpperCase() as keyof typeof EAddressLabel
-          ],
+        label: parseAddressLabel(command.label),
         isDefault: command.isDefault,
       }),
     );

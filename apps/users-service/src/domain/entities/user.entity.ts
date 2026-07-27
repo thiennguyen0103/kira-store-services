@@ -1,4 +1,5 @@
 import { AggregateRoot } from 'libs/shared/domain/aggregate-root';
+import { AddressNotFoundException } from '../exceptions/address-not-found.exception';
 import { IdentityId } from '../value-objects/user/identity-id.vo';
 import { UserProfile } from '../value-objects/user/user-profile.vo';
 import { UserId } from '../value-objects/user/user-id.vo';
@@ -12,6 +13,7 @@ import { UserAddressUpdatedEvent } from '../events/user-address-updated.event';
 
 export interface UserProps {
   identityId: IdentityId;
+  email: string;
   profile: UserProfile;
   addresses: Address[];
   createdAt: Date;
@@ -34,11 +36,13 @@ export class User extends AggregateRoot<UserId> {
     id: UserId,
     identityId: IdentityId,
     profile: UserProfile,
+    email: string,
   ): User {
     const now = new Date();
 
     const user = new User(id, {
       identityId,
+      email,
       profile,
       addresses: [],
       createdAt: now,
@@ -62,6 +66,10 @@ export class User extends AggregateRoot<UserId> {
   // ------------------------------------------------------------------
   get identityId(): IdentityId {
     return this.props.identityId;
+  }
+
+  get email(): string {
+    return this.props.email;
   }
 
   get profile(): UserProfile {
@@ -109,7 +117,7 @@ export class User extends AggregateRoot<UserId> {
     );
 
     if (index === -1) {
-      throw new Error('Address not found.');
+      throw new AddressNotFoundException(address.id.value);
     }
 
     this.props.addresses[index] = address;
@@ -123,7 +131,7 @@ export class User extends AggregateRoot<UserId> {
     const address = this.props.addresses.find((x) => x.id.value === addressId);
 
     if (!address) {
-      throw new Error('Address not found.');
+      throw new AddressNotFoundException(addressId);
     }
 
     this.props.addresses = this.props.addresses.filter(
@@ -139,7 +147,7 @@ export class User extends AggregateRoot<UserId> {
     const address = this.props.addresses.find((x) => x.id.value === addressId);
 
     if (!address) {
-      throw new Error('Address not found.');
+      throw new AddressNotFoundException(addressId);
     }
 
     this.clearDefaultAddress();

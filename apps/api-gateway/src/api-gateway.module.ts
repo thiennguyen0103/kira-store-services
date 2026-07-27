@@ -20,6 +20,7 @@ import { UsersClient } from './infrastructure/client/users.client';
 import { AuthController } from './presentation/auth.controller';
 import { BrandsController } from './presentation/brands.controller';
 import { CategoriesController } from './presentation/categories.controller';
+import { AuthGuard } from './presentation/guards/auth.guard';
 import { ProductsController } from './presentation/products.controller';
 import { UsersController } from './presentation/users.controller';
 
@@ -65,6 +66,7 @@ import { UsersController } from './presentation/users.controller';
     { provide: ProductsClientPort, useClass: ProductsClient },
     { provide: IdentityClientPort, useClass: IdentityClient },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: AuthGuard },
   ],
   exports: [
     UsersClientPort,

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Address } from 'apps/users-service/src/domain/entities/address.entity';
 import { User } from 'apps/users-service/src/domain/entities/user.entity';
 import { UserRepository } from 'apps/users-service/src/domain/repositories/user.repository';
 import { IdentityId } from 'apps/users-service/src/domain/value-objects/user/identity-id.vo';
@@ -51,10 +50,6 @@ export class TypeOrmUserRepository extends UserRepository {
 
   async exists(id: UserId): Promise<boolean> {
     return this.users.existsBy({ id: id.value });
-  }
-
-  async updateAddress(userId: UserId, address: Address): Promise<void> {
-    await this.addresses.save(this.mapper.toAddressOrm(address, userId.value));
   }
 
   async save(user: User): Promise<void> {

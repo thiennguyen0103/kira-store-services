@@ -1,13 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserNotFoundException } from 'apps/users-service/src/domain/exceptions/user-not-found.exception';
 import { UserRepository } from 'apps/users-service/src/domain/repositories/user.repository';
-import { UserId } from 'apps/users-service/src/domain/value-objects/user/user-id.vo';
-import { UserProfile } from 'apps/users-service/src/domain/value-objects/user/user-profile.vo';
-import { UpdateProfileCommand } from './update-profile.command';
-import { PersonName } from 'apps/users-service/src/domain/value-objects/user/person-name.vo';
-import { Gender } from 'apps/users-service/src/domain/value-objects/user/gender.vo';
-import { PhoneNumber } from 'apps/users-service/src/domain/value-objects/user/phone-number.vo';
 import { BirthDate } from 'apps/users-service/src/domain/value-objects/user/birth-date.vo';
+import { Gender } from 'apps/users-service/src/domain/value-objects/user/gender.vo';
+import { PersonName } from 'apps/users-service/src/domain/value-objects/user/person-name.vo';
+import { PhoneNumber } from 'apps/users-service/src/domain/value-objects/user/phone-number.vo';
+import { UserId } from 'apps/users-service/src/domain/value-objects/user/user-id.vo';
+import { UpdateProfileCommand } from './update-profile.command';
 
 @CommandHandler(UpdateProfileCommand)
 export class UpdateProfileHandler implements ICommandHandler<UpdateProfileCommand> {
@@ -20,23 +19,29 @@ export class UpdateProfileHandler implements ICommandHandler<UpdateProfileComman
       throw new UserNotFoundException(command.userId);
     }
 
-    user.updateProfile(
-      UserProfile.create({
-        name: PersonName.create({
-          firstName: command.firstName,
-          lastName: command.lastName,
-        }),
-        phone: command.phoneNumber
-          ? // TODO: get country code from user's country
-            PhoneNumber.create(command.phoneNumber, 'VN')
-          : undefined,
-        gender: command.gender ? Gender.create(command.gender) : undefined,
-        birthDate: command.birthday
-          ? BirthDate.create(command.birthday)
-          : undefined,
-        avatar: user.profile.avatar,
+    let profile = user.profile.withName(
+      PersonName.create({
+        firstName: command.firstName,
+        lastName: command.lastName,
       }),
     );
+
+    if (command.phoneNumber !== undefined) {
+      profile = profile.withPhone(
+        // TODO: get country code from user's country
+        PhoneNumber.create(command.phoneNumber, 'VN'),
+      );
+    }
+
+    if (command.gender !== undefined) {
+      profile = profile.withGender(Gender.create(command.gender));
+    }
+
+    if (command.birthday !== undefined) {
+      profile = profile.withBirthDate(BirthDate.create(command.birthday));
+    }
+
+    user.updateProfile(profile);
 
     await this.repository.save(user);
   }

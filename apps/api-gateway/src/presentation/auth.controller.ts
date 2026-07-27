@@ -32,8 +32,10 @@ import type {
   ResetPasswordResponse,
 } from 'libs/shared/generated/identity';
 import { IdentityClientPort } from '../application/ports/identity-client.port';
+import { Public } from './decorators/public.decorator';
 
 @ApiTags('auth')
+@Public()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly identityClient: IdentityClientPort) {}

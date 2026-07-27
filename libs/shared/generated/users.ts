@@ -32,6 +32,64 @@ export interface SearchUsersRequest {
   limit: number;
 }
 
+export interface UpdateProfileRequest {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  gender: string;
+  birthday: string;
+}
+
+export interface UpdateAvatarRequest {
+  userId: string;
+  avatarUrl: string;
+}
+
+export interface AddAddressRequest {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  provinceCode: string;
+  districtCode: string;
+  districtName: string;
+  wardCode: string;
+  addressLine: string;
+  postalCode: string;
+  label: string;
+  isDefault: boolean;
+}
+
+export interface UpdateAddressRequest {
+  userId: string;
+  addressId: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  provinceCode: string;
+  districtCode: string;
+  districtName: string;
+  wardCode: string;
+  addressLine: string;
+  postalCode: string;
+  label: string;
+}
+
+export interface RemoveAddressRequest {
+  userId: string;
+  addressId: string;
+}
+
+export interface SetDefaultAddressRequest {
+  userId: string;
+  addressId: string;
+}
+
+export interface MutationResponse {
+  success: boolean;
+}
+
 export interface AddressResponse {
   id: string;
   receiverName: string;
@@ -49,6 +107,7 @@ export interface UserDetailResponse {
   id: string;
   identityId: string;
   fullName: string;
+  email: string;
   avatarUrl: string;
   phoneNumber: string;
   gender: string;
@@ -102,6 +161,20 @@ export interface UsersServiceClient {
   ): Observable<GetUserByIdentityIdResponse>;
 
   searchUsers(request: SearchUsersRequest): Observable<SearchUsersResponse>;
+
+  updateProfile(request: UpdateProfileRequest): Observable<MutationResponse>;
+
+  updateAvatar(request: UpdateAvatarRequest): Observable<MutationResponse>;
+
+  addAddress(request: AddAddressRequest): Observable<MutationResponse>;
+
+  updateAddress(request: UpdateAddressRequest): Observable<MutationResponse>;
+
+  removeAddress(request: RemoveAddressRequest): Observable<MutationResponse>;
+
+  setDefaultAddress(
+    request: SetDefaultAddressRequest,
+  ): Observable<MutationResponse>;
 }
 
 export interface UsersServiceController {
@@ -139,6 +212,36 @@ export interface UsersServiceController {
     | Promise<SearchUsersResponse>
     | Observable<SearchUsersResponse>
     | SearchUsersResponse;
+
+  updateProfile(
+    request: UpdateProfileRequest,
+  ):
+    Promise<MutationResponse> | Observable<MutationResponse> | MutationResponse;
+
+  updateAvatar(
+    request: UpdateAvatarRequest,
+  ):
+    Promise<MutationResponse> | Observable<MutationResponse> | MutationResponse;
+
+  addAddress(
+    request: AddAddressRequest,
+  ):
+    Promise<MutationResponse> | Observable<MutationResponse> | MutationResponse;
+
+  updateAddress(
+    request: UpdateAddressRequest,
+  ):
+    Promise<MutationResponse> | Observable<MutationResponse> | MutationResponse;
+
+  removeAddress(
+    request: RemoveAddressRequest,
+  ):
+    Promise<MutationResponse> | Observable<MutationResponse> | MutationResponse;
+
+  setDefaultAddress(
+    request: SetDefaultAddressRequest,
+  ):
+    Promise<MutationResponse> | Observable<MutationResponse> | MutationResponse;
 }
 
 export function UsersServiceControllerMethods() {
@@ -149,6 +252,12 @@ export function UsersServiceControllerMethods() {
       'getDefaultAddress',
       'getUserByIdentityId',
       'searchUsers',
+      'updateProfile',
+      'updateAvatar',
+      'addAddress',
+      'updateAddress',
+      'removeAddress',
+      'setDefaultAddress',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(

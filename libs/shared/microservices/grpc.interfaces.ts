@@ -7,6 +7,7 @@ export interface PingResponse {
   service: string;
 }
 
+/** @deprecated Prefer UsersServiceClient from libs/shared/generated/users */
 export interface UsersGrpcService {
   ping(data: PingRequest): Observable<PingResponse>;
 }

@@ -28,6 +28,7 @@ export class UserPersistenceMapper {
       user.id,
       user.identityId,
       user.fullName,
+      user.email,
       user.avatarUrl,
       user.phoneNumber,
       user.gender,
@@ -56,6 +57,7 @@ export class UserPersistenceMapper {
   toDomain(user: UserOrmEntity): User {
     return User.restore(UserId.restore(user.id), {
       identityId: IdentityId.restore(user.identityId),
+      email: user.email,
       profile: UserProfile.create({
         name: PersonName.fromFullName(user.fullName),
         phone: user.phoneNumber
@@ -102,6 +104,7 @@ export class UserPersistenceMapper {
 
     orm.id = user.id.value;
     orm.identityId = user.identityId.value;
+    orm.email = user.email;
     orm.fullName = user.profile.name.fullName;
     orm.avatarUrl = user.profile.avatar?.url ?? null;
     orm.phoneNumber = user.profile.phone?.value ?? null;

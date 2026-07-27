@@ -3,6 +3,7 @@ import type { ClientGrpc } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { GRPC_SERVICE_NAMES, SERVICE_TOKENS } from 'libs/shared/constants';
 import type {
+  AddAddressRequest,
   GetAddressesRequest,
   GetAddressesResponse,
   GetDefaultAddressRequest,
@@ -10,8 +11,14 @@ import type {
   GetUserByIdentityIdRequest,
   GetUserByIdentityIdResponse,
   GetUserRequest,
+  MutationResponse,
+  RemoveAddressRequest,
   SearchUsersRequest,
   SearchUsersResponse,
+  SetDefaultAddressRequest,
+  UpdateAddressRequest,
+  UpdateAvatarRequest,
+  UpdateProfileRequest,
   UserDetailResponse,
   UsersServiceClient,
 } from 'libs/shared/generated/users';
@@ -56,5 +63,31 @@ export class UsersClient extends UsersClientPort implements OnModuleInit {
 
   searchUsers(request: SearchUsersRequest): Observable<SearchUsersResponse> {
     return this.usersService.searchUsers(request);
+  }
+
+  updateProfile(request: UpdateProfileRequest): Observable<MutationResponse> {
+    return this.usersService.updateProfile(request);
+  }
+
+  updateAvatar(request: UpdateAvatarRequest): Observable<MutationResponse> {
+    return this.usersService.updateAvatar(request);
+  }
+
+  addAddress(request: AddAddressRequest): Observable<MutationResponse> {
+    return this.usersService.addAddress(request);
+  }
+
+  updateAddress(request: UpdateAddressRequest): Observable<MutationResponse> {
+    return this.usersService.updateAddress(request);
+  }
+
+  removeAddress(request: RemoveAddressRequest): Observable<MutationResponse> {
+    return this.usersService.removeAddress(request);
+  }
+
+  setDefaultAddress(
+    request: SetDefaultAddressRequest,
+  ): Observable<MutationResponse> {
+    return this.usersService.setDefaultAddress(request);
   }
 }

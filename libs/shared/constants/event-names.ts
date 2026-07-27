@@ -1,6 +1,5 @@
 export const EVENT_NAMES = {
   USER_REGISTERED: 'user.registered',
-  USER_UPDATED: 'user.updated',
   ORDER_CREATED: 'order.created',
   ORDER_CONFIRMED: 'order.confirmed',
   ORDER_CANCELLED: 'order.cancelled',

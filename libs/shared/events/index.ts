@@ -1,5 +1,4 @@
 export type { UserRegisteredEvent } from './user/user-registered.event';
-export type { UserUpdatedEvent } from './user/user-updated.event';
 export type {
   OrderCreatedEvent,
   OrderStockItem,

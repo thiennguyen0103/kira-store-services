@@ -125,6 +125,7 @@ export class TypeOrmUserQueryRepository extends UserQueryRepository {
         `
         (
             LOWER(user.fullName) LIKE LOWER(:keyword)
+            OR LOWER(user.email) LIKE LOWER(:keyword)
             OR LOWER(user.phoneNumber) LIKE LOWER(:keyword)
         )
         `,
@@ -147,7 +148,7 @@ export class TypeOrmUserQueryRepository extends UserQueryRepository {
           new UserListItemDto(
             user.id,
             user.fullName,
-            '', // email comes from Identity Service
+            user.email,
             user.phoneNumber,
             user.avatarUrl,
             user.createdAt,

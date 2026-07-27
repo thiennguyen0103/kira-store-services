@@ -13,6 +13,7 @@ export class UserResponseMapper {
       id: dto.id,
       identityId: dto.identityId,
       fullName: dto.fullName,
+      email: dto.email,
       avatarUrl: dto.avatarUrl ?? '',
       phoneNumber: dto.phoneNumber ?? '',
       gender: dto.gender ?? '',

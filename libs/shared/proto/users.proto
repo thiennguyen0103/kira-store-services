@@ -8,7 +8,7 @@ service UsersService {
 
   rpc GetAddresses(GetAddressesRequest)
       returns (GetAddressesResponse);
-    
+
   rpc GetDefaultAddress(GetDefaultAddressRequest)
       returns (GetDefaultAddressResponse);
 
@@ -17,6 +17,24 @@ service UsersService {
 
   rpc SearchUsers(SearchUsersRequest)
       returns (SearchUsersResponse);
+
+  rpc UpdateProfile(UpdateProfileRequest)
+      returns (MutationResponse);
+
+  rpc UpdateAvatar(UpdateAvatarRequest)
+      returns (MutationResponse);
+
+  rpc AddAddress(AddAddressRequest)
+      returns (MutationResponse);
+
+  rpc UpdateAddress(UpdateAddressRequest)
+      returns (MutationResponse);
+
+  rpc RemoveAddress(RemoveAddressRequest)
+      returns (MutationResponse);
+
+  rpc SetDefaultAddress(SetDefaultAddressRequest)
+      returns (MutationResponse);
 }
 
 message GetUserRequest {
@@ -41,6 +59,64 @@ message SearchUsersRequest {
   int32 limit = 3;
 }
 
+message UpdateProfileRequest {
+  string userId = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string phoneNumber = 4;
+  string gender = 5;
+  string birthday = 6;
+}
+
+message UpdateAvatarRequest {
+  string userId = 1;
+  string avatarUrl = 2;
+}
+
+message AddAddressRequest {
+  string userId = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string phoneNumber = 4;
+  string provinceCode = 5;
+  string districtCode = 6;
+  string districtName = 7;
+  string wardCode = 8;
+  string addressLine = 9;
+  string postalCode = 10;
+  string label = 11;
+  bool isDefault = 12;
+}
+
+message UpdateAddressRequest {
+  string userId = 1;
+  string addressId = 2;
+  string firstName = 3;
+  string lastName = 4;
+  string phoneNumber = 5;
+  string provinceCode = 6;
+  string districtCode = 7;
+  string districtName = 8;
+  string wardCode = 9;
+  string addressLine = 10;
+  string postalCode = 11;
+  string label = 12;
+}
+
+message RemoveAddressRequest {
+  string userId = 1;
+  string addressId = 2;
+}
+
+message SetDefaultAddressRequest {
+  string userId = 1;
+  string addressId = 2;
+}
+
+message MutationResponse {
+  bool success = 1;
+}
+
 message AddressResponse {
   string id = 1;
   string receiverName = 2;
@@ -58,13 +134,14 @@ message UserDetailResponse {
   string id = 1;
   string identityId = 2;
   string fullName = 3;
-  string avatarUrl = 4;
-  string phoneNumber = 5;
-  string gender = 6;
-  string birthday = 7;
-  repeated AddressResponse addresses = 8;
-  string createdAt = 9;
-  string updatedAt = 10;
+  string email = 4;
+  string avatarUrl = 5;
+  string phoneNumber = 6;
+  string gender = 7;
+  string birthday = 8;
+  repeated AddressResponse addresses = 9;
+  string createdAt = 10;
+  string updatedAt = 11;
 }
 
 message GetAddressesResponse {

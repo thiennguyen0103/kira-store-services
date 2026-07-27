@@ -10,6 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
   ApiOperation,
@@ -37,6 +38,7 @@ import { UpdateVariantDto } from './dto/products/update-variant.dto';
 import { callGrpc } from './helpers/call-grpc.helper';
 
 @ApiTags('products')
+@ApiBearerAuth('access-token')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsClient: ProductsClientPort) {}

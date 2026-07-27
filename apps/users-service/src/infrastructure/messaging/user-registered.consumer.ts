@@ -18,7 +18,12 @@ export class UserRegisteredConsumer {
 
   @EventPattern(EVENT_NAMES.USER_REGISTERED)
   async handle(@Payload() event: UserRegisteredEvent): Promise<void> {
-    if (!event?.identityId || !event.firstName || !event.lastName) {
+    if (
+      !event?.identityId ||
+      !event.email ||
+      !event.firstName ||
+      !event.lastName
+    ) {
       this.logger.warn('Ignoring malformed user.registered event');
       return;
     }
@@ -34,7 +39,12 @@ export class UserRegisteredConsumer {
     }
 
     await this.commandBus.execute(
-      new CreateUserCommand(event.identityId, event.firstName, event.lastName),
+      new CreateUserCommand(
+        event.identityId,
+        event.email,
+        event.firstName,
+        event.lastName,
+      ),
     );
 
     this.logger.log(`Created user profile for identity ${event.identityId}`);
