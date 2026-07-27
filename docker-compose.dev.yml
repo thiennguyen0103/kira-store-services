@@ -158,6 +158,7 @@ services:
     environment:
       <<: *nest-common-env
       PORT: '3000'
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
       USERS_GRPC_URL: users-service:5001
       ORDERS_GRPC_URL: orders-service:5002
       PAYMENTS_GRPC_URL: payments-service:5003

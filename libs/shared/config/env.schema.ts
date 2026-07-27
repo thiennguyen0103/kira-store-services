@@ -40,6 +40,8 @@ export const emailEnvSchema = {
 export const apiGatewayEnvSchema = Joi.object({
   ...baseEnvSchema,
   PORT: Joi.number().port().default(3000),
+  /** Comma-separated origins, or `*` to allow any site. */
+  CORS_ORIGINS: Joi.string().default('*'),
   USERS_GRPC_URL: grpcHostPort.required(),
   ORDERS_GRPC_URL: grpcHostPort.required(),
   PAYMENTS_GRPC_URL: grpcHostPort.required(),
