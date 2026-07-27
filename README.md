@@ -1,98 +1,180 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Kira Store Services
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS monorepo powering the Kira Store backend. Services communicate over **gRPC** for synchronous calls and **RabbitMQ** for domain events, behind a single HTTP **API gateway**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Architecture
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ pnpm install
+```
+                    ┌─────────────────┐
+                    │   API Gateway   │  :3000  (HTTP + Swagger)
+                    │   /docs         │
+                    └────────┬────────┘
+                             │ gRPC
+        ┌──────────┬─────────┼─────────┬──────────┬──────────┐
+        ▼          ▼         ▼         ▼          ▼          ▼
+   Identity    Users     Orders   Payments   Products     Media
+    :5005      :5001      :5002     :5003      :5004      :5006
+        │          │         │         │          │          │
+        └──────────┴─────────┴────┬────┴──────────┴──────────┘
+                                  │
+                         RabbitMQ (events)
+                                  │
+                    PostgreSQL · MinIO · Loki/Grafana
 ```
 
-## Compile and run the project
+Each domain service follows a layered layout (presentation → application/CQRS → domain → infrastructure) and owns its own PostgreSQL database.
+
+| Service            | HTTP | gRPC | Database        | Responsibility                     |
+| ------------------ | ---: | ---: | --------------- | ---------------------------------- |
+| `api-gateway`      | 3000 |    — | —               | Public REST API, auth, routing     |
+| `users-service`    | 3001 | 5001 | `kira_users`    | Profiles & customer data           |
+| `orders-service`   | 3002 | 5002 | `kira_orders`   | Cart, checkout, order lifecycle    |
+| `payments-service` | 3003 | 5003 | `kira_payments` | Stripe / PayOS payments & webhooks |
+| `products-service` | 3004 | 5004 | `kira_products` | Catalog & stock reservation        |
+| `identity-service` | 3005 | 5005 | `kira_identity` | Auth, JWT, email verification      |
+| `media-service`    | 3006 | 5006 | `kira_media`    | Uploads via S3-compatible storage  |
+
+Shared code lives in `libs/shared` (proto contracts, events, config, logging, mail, DTOs).
+
+## Tech stack
+
+- **Runtime:** Node.js, TypeScript, NestJS 11 (CQRS)
+- **Transport:** gRPC (`@grpc/grpc-js`), RabbitMQ
+- **Data:** PostgreSQL 16, TypeORM
+- **Storage:** MinIO (S3-compatible)
+- **Payments:** Stripe, PayOS
+- **Observability:** Pino → Loki, Grafana
+- **Tooling:** pnpm, Jest, Oxlint, Prettier, Lefthook, Commitlint
+
+## Prerequisites
+
+- Node.js 22+
+- [pnpm](https://pnpm.io/) 11 (`packageManager` is pinned in `package.json`)
+- Docker & Docker Compose
+
+## Quick start (Docker)
+
+Full stack (infra + all Nest apps with hot reload):
 
 ```bash
-# development
-$ pnpm start
-
-# watch mode
-$ pnpm start:dev
-
-# production mode
-$ pnpm start:prod
+pnpm install
+pnpm docker:dev
 ```
 
-## Run tests
+| Resource      | URL                                                 |
+| ------------- | --------------------------------------------------- |
+| API Gateway   | http://localhost:3000                               |
+| Swagger       | http://localhost:3000/docs                          |
+| RabbitMQ UI   | http://localhost:15672 (`guest` / `guest`)          |
+| Grafana       | http://localhost:3200                               |
+| MinIO Console | http://localhost:9001 (`minioadmin` / `minioadmin`) |
+
+Useful commands:
 
 ```bash
-# unit tests
-$ pnpm test
-
-# e2e tests
-$ pnpm test:e2e
-
-# test coverage
-$ pnpm test:cov
+pnpm docker:dev:logs    # follow logs
+pnpm docker:dev:ps      # container status
+pnpm docker:dev:down    # stop stack
+pnpm docker:dev:reset   # stop + wipe volumes
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Infra only (Postgres, RabbitMQ, Loki, Grafana, MinIO):
 
 ```bash
-$ pnpm add -g @nestjs/mau
-$ mau deploy
+pnpm docker:up
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Local development (host)
 
-## Resources
+1. Start infrastructure:
 
-Check out a few resources that may come in handy when working with NestJS:
+   ```bash
+   pnpm docker:up
+   ```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+2. Copy env examples per service:
 
-## Support
+   ```bash
+   cp .env.example .env
+   cp apps/api-gateway/.env.example apps/api-gateway/.env
+   cp apps/identity-service/.env.example apps/identity-service/.env
+   cp apps/users-service/.env.example apps/users-service/.env
+   cp apps/orders-service/.env.example apps/orders-service/.env
+   cp apps/payments-service/.env.example apps/payments-service/.env
+   cp apps/products-service/.env.example apps/products-service/.env
+   cp apps/media-service/.env.example apps/media-service/.env
+   ```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+3. Install and run services (separate terminals):
 
-## Stay in touch
+   ```bash
+   pnpm install
+   pnpm exec nest start api-gateway --watch
+   pnpm exec nest start identity-service --watch
+   # …repeat for users, orders, payments, products, media
+   ```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Payment providers need real credentials in `apps/payments-service/.env` (`STRIPE_*`, `PAYOS_*`) when exercising checkout flows.
+
+## Project structure
+
+```
+apps/
+  api-gateway/          # HTTP edge
+  identity-service/
+  users-service/
+  orders-service/
+  payments-service/
+  products-service/
+  media-service/
+libs/
+  shared/
+    proto/              # .proto contracts
+    generated/          # ts-proto output
+    events/             # cross-service domain events
+    config/ logging/ mail/ …
+infra/
+  postgres/ loki/ grafana/
+docker-compose.yml      # infrastructure
+docker-compose.dev.yml  # Nest apps overlay
+```
+
+## Scripts
+
+| Script                | Description                                   |
+| --------------------- | --------------------------------------------- |
+| `pnpm build`          | Build Nest projects                           |
+| `pnpm start:dev`      | Start default app (api-gateway) in watch mode |
+| `pnpm lint`           | Oxlint (type-aware) + Prettier check          |
+| `pnpm format`         | Prettier write                                |
+| `pnpm test`           | Unit tests (Jest)                             |
+| `pnpm test:cov`       | Coverage                                      |
+| `pnpm generate:proto` | Regenerate TypeScript from `.proto` files     |
+| `pnpm docker:dev`     | Infra + apps with hot reload                  |
+
+After changing files under `libs/shared/proto/`, regenerate clients:
+
+```bash
+pnpm generate:proto
+```
+
+## Testing & quality
+
+```bash
+pnpm test
+pnpm test:watch
+pnpm lint
+```
+
+Git hooks (Lefthook) install on `pnpm install` via `prepare`. Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (Commitlint).
+
+## Configuration
+
+- Root `.env.example` — Docker Compose port/credential overrides
+- `apps/*/.env.example` — per-service Nest configuration (gRPC URLs, DB, secrets)
+
+Do not commit `.env` files or real payment/API secrets.
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+UNLICENSED — private project.
