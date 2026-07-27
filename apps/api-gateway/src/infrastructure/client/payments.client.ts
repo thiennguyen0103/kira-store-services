@@ -3,14 +3,19 @@ import type { ClientGrpc } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { GRPC_SERVICE_NAMES, SERVICE_TOKENS } from 'libs/shared/constants';
 import type {
-  PaymentsGrpcService,
+  CreatePaymentIntentRequest,
+  GetPaymentByOrderIdRequest,
+  GetPaymentRequest,
+  PaymentResponse,
+  PaymentsServiceClient,
   PingResponse,
-} from 'libs/shared/microservices';
+  RefundPaymentRequest,
+} from 'libs/shared/generated/payments';
 import { PaymentsClientPort } from '../../application/ports/payments-client.port';
 
 @Injectable()
 export class PaymentsClient extends PaymentsClientPort implements OnModuleInit {
-  private paymentsService!: PaymentsGrpcService;
+  private paymentsService!: PaymentsServiceClient;
 
   constructor(
     @Inject(SERVICE_TOKENS.PAYMENTS_SERVICE)
@@ -20,12 +25,32 @@ export class PaymentsClient extends PaymentsClientPort implements OnModuleInit {
   }
 
   onModuleInit(): void {
-    this.paymentsService = this.client.getService<PaymentsGrpcService>(
+    this.paymentsService = this.client.getService<PaymentsServiceClient>(
       GRPC_SERVICE_NAMES.PAYMENTS,
     );
   }
 
   ping(): Observable<PingResponse> {
     return this.paymentsService.ping({});
+  }
+
+  createPaymentIntent(
+    request: CreatePaymentIntentRequest,
+  ): Observable<PaymentResponse> {
+    return this.paymentsService.createPaymentIntent(request);
+  }
+
+  getPayment(request: GetPaymentRequest): Observable<PaymentResponse> {
+    return this.paymentsService.getPayment(request);
+  }
+
+  getPaymentByOrderId(
+    request: GetPaymentByOrderIdRequest,
+  ): Observable<PaymentResponse> {
+    return this.paymentsService.getPaymentByOrderId(request);
+  }
+
+  refundPayment(request: RefundPaymentRequest): Observable<PaymentResponse> {
+    return this.paymentsService.refundPayment(request);
   }
 }

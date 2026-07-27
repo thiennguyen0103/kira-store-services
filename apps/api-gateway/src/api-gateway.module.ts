@@ -21,12 +21,15 @@ import { ProductsClient } from './infrastructure/client/products.client';
 import { UsersClient } from './infrastructure/client/users.client';
 import { AdminBrandsController } from './presentation/admin/admin-brands.controller';
 import { AdminCategoriesController } from './presentation/admin/admin-categories.controller';
+import { AdminOrdersController } from './presentation/admin/admin-orders.controller';
 import { AdminProductsController } from './presentation/admin/admin-products.controller';
 import { AuthController } from './presentation/auth.controller';
 import { BrandsController } from './presentation/brands.controller';
+import { CartController } from './presentation/cart.controller';
 import { CategoriesController } from './presentation/categories.controller';
 import { AuthGuard } from './presentation/guards/auth.guard';
 import { RolesGuard } from './presentation/guards/roles.guard';
+import { OrdersController } from './presentation/orders.controller';
 import { ProductsController } from './presentation/products.controller';
 import { UploadsController } from './presentation/uploads.controller';
 import { UsersController } from './presentation/users.controller';
@@ -69,9 +72,12 @@ import { UsersController } from './presentation/users.controller';
     ProductsController,
     BrandsController,
     CategoriesController,
+    CartController,
+    OrdersController,
     AdminProductsController,
     AdminBrandsController,
     AdminCategoriesController,
+    AdminOrdersController,
     UploadsController,
   ],
   providers: [
