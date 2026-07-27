@@ -76,8 +76,25 @@ services:
       timeout: 5s
       retries: 5
 
+  minio:
+    image: minio/minio:latest
+    container_name: kira-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    ports:
+      - '9000:9000'
+      - '127.0.0.1:9001:9001'
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      # Browser uploads (presigned PUT) from any origin in local/dev
+      MINIO_API_CORS_ALLOW_ORIGIN: '*'
+    volumes:
+      - minio_data:/data
+
 volumes:
   postgres_data:
   loki_data:
   grafana_data:
   rabbitmq_data:
+  minio_data:

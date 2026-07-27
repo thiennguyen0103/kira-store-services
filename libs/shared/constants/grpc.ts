@@ -4,6 +4,7 @@ export const GRPC_PACKAGES = {
   PAYMENTS: 'payments',
   PRODUCTS: 'products',
   IDENTITY: 'identity',
+  MEDIA: 'media',
 } as const;
 
 export const GRPC_SERVICE_NAMES = {
@@ -12,6 +13,7 @@ export const GRPC_SERVICE_NAMES = {
   PAYMENTS: 'PaymentsService',
   PRODUCTS: 'ProductsService',
   IDENTITY: 'IdentityService',
+  MEDIA: 'MediaService',
 } as const;
 
 const DEFAULT_GRPC_URLS = {
@@ -20,6 +22,7 @@ const DEFAULT_GRPC_URLS = {
   PAYMENTS: 'localhost:5003',
   PRODUCTS: 'localhost:5004',
   IDENTITY: 'localhost:5005',
+  MEDIA: 'localhost:5006',
 } as const;
 
 export function getGrpcUrls() {
@@ -29,5 +32,6 @@ export function getGrpcUrls() {
     PAYMENTS: process.env.PAYMENTS_GRPC_URL ?? DEFAULT_GRPC_URLS.PAYMENTS,
     PRODUCTS: process.env.PRODUCTS_GRPC_URL ?? DEFAULT_GRPC_URLS.PRODUCTS,
     IDENTITY: process.env.IDENTITY_GRPC_URL ?? DEFAULT_GRPC_URLS.IDENTITY,
+    MEDIA: process.env.MEDIA_GRPC_URL ?? DEFAULT_GRPC_URLS.MEDIA,
   } as const;
 }

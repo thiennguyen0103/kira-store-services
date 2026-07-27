@@ -8,11 +8,13 @@ import { getGrpcUrls, SERVICE_TOKENS } from 'libs/shared/constants';
 import { createLoggerModule } from 'libs/shared/logging';
 import { createGrpcOptions } from 'libs/shared/microservices';
 import { IdentityClientPort } from './application/ports/identity-client.port';
+import { MediaClientPort } from './application/ports/media-client.port';
 import { OrdersClientPort } from './application/ports/orders-client.port';
 import { PaymentsClientPort } from './application/ports/payments-client.port';
 import { ProductsClientPort } from './application/ports/products-client.port';
 import { UsersClientPort } from './application/ports/users-client.port';
 import { IdentityClient } from './infrastructure/client/identity.client';
+import { MediaClient } from './infrastructure/client/media.client';
 import { OrdersClient } from './infrastructure/client/orders.client';
 import { PaymentsClient } from './infrastructure/client/payments.client';
 import { ProductsClient } from './infrastructure/client/products.client';
@@ -22,6 +24,7 @@ import { BrandsController } from './presentation/brands.controller';
 import { CategoriesController } from './presentation/categories.controller';
 import { AuthGuard } from './presentation/guards/auth.guard';
 import { ProductsController } from './presentation/products.controller';
+import { UploadsController } from './presentation/uploads.controller';
 import { UsersController } from './presentation/users.controller';
 
 @Module({
@@ -50,6 +53,10 @@ import { UsersController } from './presentation/users.controller';
         name: SERVICE_TOKENS.IDENTITY_SERVICE,
         useFactory: () => createGrpcOptions('identity', getGrpcUrls().IDENTITY),
       },
+      {
+        name: SERVICE_TOKENS.MEDIA_SERVICE,
+        useFactory: () => createGrpcOptions('media', getGrpcUrls().MEDIA),
+      },
     ]),
   ],
   controllers: [
@@ -58,6 +65,7 @@ import { UsersController } from './presentation/users.controller';
     ProductsController,
     BrandsController,
     CategoriesController,
+    UploadsController,
   ],
   providers: [
     { provide: UsersClientPort, useClass: UsersClient },
@@ -65,6 +73,7 @@ import { UsersController } from './presentation/users.controller';
     { provide: PaymentsClientPort, useClass: PaymentsClient },
     { provide: ProductsClientPort, useClass: ProductsClient },
     { provide: IdentityClientPort, useClass: IdentityClient },
+    { provide: MediaClientPort, useClass: MediaClient },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: AuthGuard },
   ],
@@ -74,6 +83,7 @@ import { UsersController } from './presentation/users.controller';
     PaymentsClientPort,
     ProductsClientPort,
     IdentityClientPort,
+    MediaClientPort,
   ],
 })
 export class ApiGatewayModule {}

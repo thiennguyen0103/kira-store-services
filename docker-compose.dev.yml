@@ -1,0 +1,167 @@
+# Development overlay — Nest microservices with hot reload.
+# Merges with the infra stack in docker-compose.yml.
+#
+#   pnpm docker:dev          # infra + apps
+#   pnpm docker:dev:down
+#   docker compose up -d     # infra only
+
+x-nest-service: &nest-service
+  build:
+    context: .
+    dockerfile: Dockerfile.dev
+  restart: unless-stopped
+  working_dir: /app
+  volumes:
+    - ./apps:/app/apps
+    - ./libs:/app/libs
+    - ./nest-cli.json:/app/nest-cli.json:ro
+    - ./tsconfig.json:/app/tsconfig.json:ro
+    - ./tsconfig.build.json:/app/tsconfig.build.json:ro
+  environment: &nest-common-env
+    NODE_ENV: development
+    LOG_LEVEL: info
+    LOKI_URL: http://loki:3100
+    RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    DB_HOST: postgres
+    DB_PORT: '5432'
+    DB_USERNAME: postgres
+    DB_PASSWORD: postgres
+  depends_on:
+    postgres:
+      condition: service_healthy
+    rabbitmq:
+      condition: service_healthy
+
+services:
+  identity-service:
+    <<: *nest-service
+    container_name: kira-identity-service
+    command: pnpm exec nest start identity-service --watch
+    ports:
+      - '3005:3005'
+      - '5005:5005'
+    environment:
+      <<: *nest-common-env
+      PORT: '3005'
+      IDENTITY_GRPC_URL: 0.0.0.0:5005
+      DB_NAME: kira_identity
+      APP_PUBLIC_URL: http://localhost:3000
+      JWT_ACCESS_SECRET: dev-access-secret-change-me-32chars!!
+      JWT_REFRESH_SECRET: dev-refresh-secret-change-me-32chars!
+      JWT_ACCESS_TTL: 15m
+      JWT_REFRESH_TTL: 7d
+      EMAIL_FROM: Kira Store <onboarding@resend.dev>
+
+  users-service:
+    <<: *nest-service
+    container_name: kira-users-service
+    command: pnpm exec nest start users-service --watch
+    ports:
+      - '3001:3001'
+      - '5001:5001'
+    environment:
+      <<: *nest-common-env
+      PORT: '3001'
+      USERS_GRPC_URL: 0.0.0.0:5001
+      DB_NAME: kira_users
+
+  orders-service:
+    <<: *nest-service
+    container_name: kira-orders-service
+    command: pnpm exec nest start orders-service --watch
+    ports:
+      - '3002:3002'
+      - '5002:5002'
+    environment:
+      <<: *nest-common-env
+      PORT: '3002'
+      ORDERS_GRPC_URL: 0.0.0.0:5002
+      DB_NAME: kira_orders
+
+  payments-service:
+    <<: *nest-service
+    container_name: kira-payments-service
+    command: pnpm exec nest start payments-service --watch
+    ports:
+      - '3003:3003'
+      - '5003:5003'
+    environment:
+      <<: *nest-common-env
+      PORT: '3003'
+      PAYMENTS_GRPC_URL: 0.0.0.0:5003
+      DB_NAME: kira_payments
+
+  products-service:
+    <<: *nest-service
+    container_name: kira-products-service
+    command: pnpm exec nest start products-service --watch
+    ports:
+      - '3004:3004'
+      - '5004:5004'
+    environment:
+      <<: *nest-common-env
+      PORT: '3004'
+      PRODUCTS_GRPC_URL: 0.0.0.0:5004
+      DB_NAME: kira_products
+
+  media-service:
+    <<: *nest-service
+    container_name: kira-media-service
+    command: pnpm exec nest start media-service --watch
+    ports:
+      - '3006:3006'
+      - '5006:5006'
+    environment:
+      <<: *nest-common-env
+      PORT: '3006'
+      MEDIA_GRPC_URL: 0.0.0.0:5006
+      DB_NAME: kira_media
+      S3_ENDPOINT: http://minio:9000
+      S3_PRESIGN_ENDPOINT: http://localhost:9000
+      S3_REGION: us-east-1
+      S3_ACCESS_KEY_ID: minioadmin
+      S3_SECRET_ACCESS_KEY: minioadmin
+      S3_BUCKET: kira-media
+      S3_FORCE_PATH_STYLE: 'true'
+      S3_PUBLIC_BASE_URL: http://localhost:9000/kira-media
+      S3_PRESIGN_TTL_SECONDS: '300'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+  api-gateway:
+    <<: *nest-service
+    container_name: kira-api-gateway
+    command: pnpm exec nest start api-gateway --watch
+    ports:
+      - '3000:3000'
+    environment:
+      <<: *nest-common-env
+      PORT: '3000'
+      USERS_GRPC_URL: users-service:5001
+      ORDERS_GRPC_URL: orders-service:5002
+      PAYMENTS_GRPC_URL: payments-service:5003
+      PRODUCTS_GRPC_URL: products-service:5004
+      IDENTITY_GRPC_URL: identity-service:5005
+      MEDIA_GRPC_URL: media-service:5006
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      identity-service:
+        condition: service_started
+      users-service:
+        condition: service_started
+      orders-service:
+        condition: service_started
+      payments-service:
+        condition: service_started
+      products-service:
+        condition: service_started
+      media-service:
+        condition: service_started

@@ -19,9 +19,18 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "generate:proto": "node --experimental-strip-types scripts/generate-proto.mts"
+    "generate:proto": "node --experimental-strip-types scripts/generate-proto.mts",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build",
+    "docker:dev:down": "docker compose -f docker-compose.yml -f docker-compose.dev.yml down",
+    "docker:dev:logs": "docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f",
+    "docker:dev:ps": "docker compose -f docker-compose.yml -f docker-compose.dev.yml ps",
+    "docker:dev:reset": "docker compose -f docker-compose.yml -f docker-compose.dev.yml down -v --remove-orphans"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1095.0",
+    "@aws-sdk/s3-request-presigner": "^3.1095.0",
     "@grpc/grpc-js": "^1.14.4",
     "@grpc/proto-loader": "^0.8.1",
     "@nestjs/common": "^11.0.1",

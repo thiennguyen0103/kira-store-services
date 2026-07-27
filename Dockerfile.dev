@@ -1,0 +1,27 @@
+# Development image for Nest microservices (hot reload via compose volumes).
+FROM node:22-bookworm-slim
+
+RUN corepack enable \
+  && corepack prepare pnpm@11.13.1 --activate \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+ENV CI=true \
+    LEFTHOOK=0 \
+    NODE_ENV=development
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY nest-cli.json tsconfig.json tsconfig.build.json ./
+COPY apps ./apps
+COPY libs ./libs
+
+# Skip prepare (lefthook needs git); rebuild native runtime deps afterwards.
+RUN pnpm install --frozen-lockfile --ignore-scripts \
+  && pnpm rebuild argon2
+
+EXPOSE 3000 3001 3002 3003 3004 3005 3006 5001 5002 5003 5004 5005 5006
+
+CMD ["pnpm", "exec", "nest", "start", "api-gateway", "--watch"]

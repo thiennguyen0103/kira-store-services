@@ -2,7 +2,7 @@ import { join } from 'node:path';
 import { Transport, type GrpcOptions } from '@nestjs/microservices';
 
 export type GrpcServiceKey =
-  'users' | 'orders' | 'payments' | 'products' | 'identity';
+  'users' | 'orders' | 'payments' | 'products' | 'identity' | 'media';
 
 const PROTO_FILE: Record<GrpcServiceKey, string> = {
   users: 'users.proto',
@@ -10,6 +10,7 @@ const PROTO_FILE: Record<GrpcServiceKey, string> = {
   payments: 'payments.proto',
   products: 'products.proto',
   identity: 'identity.proto',
+  media: 'media.proto',
 };
 
 const PACKAGE_NAME: Record<GrpcServiceKey, string> = {
@@ -18,6 +19,7 @@ const PACKAGE_NAME: Record<GrpcServiceKey, string> = {
   payments: 'payments',
   products: 'products',
   identity: 'identity',
+  media: 'media',
 };
 
 /** Resolve proto path from monorepo root (works for nest start / dist). */

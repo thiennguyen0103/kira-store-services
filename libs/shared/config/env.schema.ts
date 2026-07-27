@@ -45,7 +45,30 @@ export const apiGatewayEnvSchema = Joi.object({
   PAYMENTS_GRPC_URL: grpcHostPort.required(),
   PRODUCTS_GRPC_URL: grpcHostPort.required(),
   IDENTITY_GRPC_URL: grpcHostPort.required(),
+  MEDIA_GRPC_URL: grpcHostPort.required(),
 });
+
+const s3EnvSchema = {
+  S3_ENDPOINT: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .required(),
+  /** Host clients use for PUT (defaults to S3_ENDPOINT when omitted). */
+  S3_PRESIGN_ENDPOINT: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .optional(),
+  S3_REGION: Joi.string().default('us-east-1'),
+  S3_ACCESS_KEY_ID: Joi.string().required(),
+  S3_SECRET_ACCESS_KEY: Joi.string().required(),
+  S3_BUCKET: Joi.string().required(),
+  S3_FORCE_PATH_STYLE: Joi.boolean()
+    .truthy('true')
+    .falsy('false')
+    .default(true),
+  S3_PUBLIC_BASE_URL: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .required(),
+  S3_PRESIGN_TTL_SECONDS: Joi.number().integer().min(60).max(3600).default(300),
+};
 
 export const usersServiceEnvSchema = Joi.object({
   ...baseEnvSchema,
@@ -88,4 +111,12 @@ export const identityServiceEnvSchema = Joi.object({
   APP_PUBLIC_URL: Joi.string()
     .uri({ scheme: ['http', 'https'] })
     .default('http://localhost:3000'),
+});
+
+export const mediaServiceEnvSchema = Joi.object({
+  ...baseEnvSchema,
+  ...postgresEnvSchema,
+  ...s3EnvSchema,
+  PORT: Joi.number().port().default(3006),
+  MEDIA_GRPC_URL: grpcHostPort.required(),
 });

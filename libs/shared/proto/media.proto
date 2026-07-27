@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package media;
+
+service MediaService {
+  rpc Ping (PingRequest) returns (PingResponse);
+
+  rpc PresignUpload (PresignUploadRequest) returns (PresignUploadResponse);
+  rpc DeleteAsset (DeleteAssetRequest) returns (DeleteAssetResponse);
+  rpc GetAsset (GetAssetRequest) returns (AssetResponse);
+}
+
+message PingRequest {}
+
+message PingResponse {
+  bool ok = 1;
+  string service = 2;
+}
+
+message PresignUploadRequest {
+  string purpose = 1;
+  string contentType = 2;
+  int64 contentLength = 3;
+  string fileName = 4;
+  string uploaderIdentityId = 5;
+}
+
+message PresignUploadResponse {
+  string assetId = 1;
+  string key = 2;
+  string uploadUrl = 3;
+  string publicUrl = 4;
+  string expiresAt = 5;
+}
+
+message DeleteAssetRequest {
+  string assetId = 1;
+  string requesterIdentityId = 2;
+}
+
+message DeleteAssetResponse {
+  bool success = 1;
+}
+
+message GetAssetRequest {
+  string assetId = 1;
+}
+
+message AssetResponse {
+  string assetId = 1;
+  string key = 2;
+  string purpose = 3;
+  string contentType = 4;
+  int64 contentLength = 5;
+  string publicUrl = 6;
+  string status = 7;
+  string uploaderIdentityId = 8;
+  string createdAt = 9;
+  string updatedAt = 10;
+}
